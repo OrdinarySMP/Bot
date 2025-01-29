@@ -19,6 +19,9 @@ import {
   commandsHandler,
   autocompleteHandler,
 } from './events/interaction.js';
+import {
+  ticketButtonHandler,
+} from './events/ticket.js';
 import { handleReactionRole } from './events/reactionRole.js';
 
 const intents = [
@@ -42,6 +45,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   } else if (interaction.isModalSubmit()) {
     modalHandler(interaction);
   }
+  ticketButtonHandler(interaction)
 });
 
 client.once(Events.ClientReady, (readyClient) => {
