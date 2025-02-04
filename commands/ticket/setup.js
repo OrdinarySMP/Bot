@@ -3,11 +3,8 @@ import {
   PermissionFlagsBits,
   ChannelType,
   PermissionsBitField,
-  ButtonBuilder,
-  ButtonStyle,
-  ActionRowBuilder,
-  EmbedBuilder,
 } from 'discord.js';
+import { apiFetch } from '../../utils/apiFetch.js';
 
 export const data = new SlashCommandBuilder()
   .setName('tickets-setup')
@@ -28,6 +25,26 @@ export const data = new SlashCommandBuilder()
   );
 
 export const execute = async (interaction) => {
+  await interaction.deferReply({
+    ephemeral: true,
+  });
+
+  const responseConfig = await apiFetch('/ticket/config', {
+    method: 'GET',
+    query: {
+      'filter[guild_id]': interaction.guild.id
+    }
+  });
+  const ticketConfig = await responseConfig.json();
+
+  if (ticketConfig.id) {
+    await interaction.editReply({
+      content: 'The setup is completed. Please use the helper panel.',
+      ephemeral: true,
+    });
+    return
+  }
+
   const categoryName =
     interaction.options.getString('category-name') ?? 'tickets';
   const transcriptChannelName =
@@ -60,33 +77,68 @@ export const execute = async (interaction) => {
     topic: 'Create a ticket here',
   });
 
-  // const response = await apiFetch('/ticket/setup', {
-  //   method: 'POST',
-  //   body: {
-  //     category_id: category.id,
-  //     transcript_channel_id: transcriptChannel.id,
-  //     create_channel_id: createChannel.id,
-  //     server_id: interaction.guild.id,
-  //   },
-  // });
-
-  const confirm = new ButtonBuilder()
-    .setCustomId('confirm')
-    .setLabel('Support')
-    .setStyle(ButtonStyle.Success);
-
-  const row = new ActionRowBuilder().addComponents(confirm);
-
-  const embed = new EmbedBuilder()
-    .setColor('#f0833a')
-    .setTitle("Click to open a ticket")
-    .setDescription("Click on the button corresponding to the type of ticket you wish to open");
-  await createChannel.send({
-    components: [row],
-    embeds: [embed],
+  const response = await apiFetch('/ticket/config', {
+    method: 'POST',
+    body: {
+      category_id: category.id,
+      transcript_channel_id: transcriptChannel.id,
+      create_channel_id: createChannel.id,
+      guild_id: interaction.guild.id,
+    },
   });
 
-  await interaction.reply({
+  if (!response.ok) {
+    await interaction.editReply({
+      content: 'An error occurred while setting up the ticket system. Please try again later. If this error persists, please report to the staff team.',
+      ephemeral: true,
+    });
+    category.delete();
+    transcriptChannel.delete();
+    createChannel.delete();
+    return
+  }
+
+  const responseButton = await apiFetch('/ticket/button', {
+    method: 'POST',
+    body: {
+      text: 'Staff support',
+      color: 'green',
+      initial_message: 'Thank you for contacting our support.\n Please describe your issue and wait for a response.',
+      emoji: '⚠️',
+      naming_scheme: '%id%-staff-support',
+    },
+  });
+
+  const ticketButton = await responseButton.json();
+  console.log(ticketButton)
+  if (!responseButton.ok) {
+    await interaction.editReply({
+      content: 'The Ticket Button could not be created. Please try again later. If this error persists, please report to the staff team.',
+      ephemeral: true,
+    });
+    return
+  }
+
+  const responsePanel = await apiFetch('/ticket/panel', {
+    method: 'POST',
+    body: {
+      titel: 'Click to open a ticket',
+      message: 'Click on the button corresponding to the type of ticket you wish to open',
+      embed_color: '#248045',
+      channel_id: createChannel.id,
+      ticket_types: [ticketButton.id]
+    },
+  });
+
+  if (!responsePanel.ok) {
+    await interaction.editReply({
+      content: 'The Ticket Panel could not be created. Please try again later. If this error persists, please report to the staff team.',
+      ephemeral: true,
+    });
+    return
+  }
+
+  await interaction.editReply({
     content: 'tickets setup completed.',
     ephemeral: true,
   });
