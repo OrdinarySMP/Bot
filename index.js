@@ -13,15 +13,14 @@ import {
   deployCommands,
   getModals,
   Logger,
+  loadTickets,
 } from './utils/index.js';
 import {
   modalHandler,
   commandsHandler,
   autocompleteHandler,
 } from './events/interaction.js';
-import {
-  ticketButtonHandler,
-} from './events/ticket.js';
+import { ticketHandler, ticketMessageHandler } from './events/ticket.js';
 import { handleReactionRole } from './events/reactionRole.js';
 
 const intents = [
@@ -30,6 +29,7 @@ const intents = [
   GatewayIntentBits.GuildPresences,
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildMessageReactions,
+  GatewayIntentBits.MessageContent,
 ];
 const partials = [Partials.Message, Partials.Channel, Partials.Reaction];
 
@@ -45,7 +45,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
   } else if (interaction.isModalSubmit()) {
     modalHandler(interaction);
   }
-  ticketButtonHandler(interaction)
+  ticketHandler(interaction);
+});
+
+client.on(Events.MessageCreate, async (message) => {
+  ticketMessageHandler(message);
 });
 
 client.once(Events.ClientReady, (readyClient) => {
@@ -75,4 +79,5 @@ client.on(Events.MessageReactionRemove, async (reaction, user) => {
 });
 
 deployCommands();
+loadTickets();
 client.login(process.env.DISCORD_TOKEN);

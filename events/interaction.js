@@ -43,6 +43,9 @@ export const commandsHandler = async (interaction) => {
 
 export const modalHandler = async (interaction) => {
   const modal = interaction.client.modals.get(interaction.customId);
+  if (interaction.customId.match(/^ticket-.?/)) {
+    return;
+  }
 
   if (!modal) {
     Logger.error(`No modal matching ${interaction.customId} was found.`);

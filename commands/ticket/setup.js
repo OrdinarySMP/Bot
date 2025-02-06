@@ -32,17 +32,17 @@ export const execute = async (interaction) => {
   const responseConfig = await apiFetch('/ticket/config', {
     method: 'GET',
     query: {
-      'filter[guild_id]': interaction.guild.id
-    }
+      'filter[guild_id]': interaction.guild.id,
+    },
   });
   const ticketConfig = await responseConfig.json();
 
-  if (ticketConfig.id) {
+  if (ticketConfig.data.id) {
     await interaction.editReply({
       content: 'The setup is completed. Please use the helper panel.',
       ephemeral: true,
     });
-    return
+    return;
   }
 
   const categoryName =
@@ -77,7 +77,7 @@ export const execute = async (interaction) => {
     topic: 'Create a ticket here',
   });
 
-  const response = await apiFetch('/ticket/config', {
+  const response = await apiFetch('/ticket/config/setup', {
     method: 'POST',
     body: {
       category_id: category.id,
@@ -89,53 +89,14 @@ export const execute = async (interaction) => {
 
   if (!response.ok) {
     await interaction.editReply({
-      content: 'An error occurred while setting up the ticket system. Please try again later. If this error persists, please report to the staff team.',
+      content:
+        'An error occurred while setting up the ticket system. Please try again later. If this error persists, please report to the staff team.',
       ephemeral: true,
     });
     category.delete();
     transcriptChannel.delete();
     createChannel.delete();
-    return
-  }
-
-  const responseButton = await apiFetch('/ticket/button', {
-    method: 'POST',
-    body: {
-      text: 'Staff support',
-      color: 'green',
-      initial_message: 'Thank you for contacting our support.\n Please describe your issue and wait for a response.',
-      emoji: '⚠️',
-      naming_scheme: '%id%-staff-support',
-    },
-  });
-
-  const ticketButton = await responseButton.json();
-  console.log(ticketButton)
-  if (!responseButton.ok) {
-    await interaction.editReply({
-      content: 'The Ticket Button could not be created. Please try again later. If this error persists, please report to the staff team.',
-      ephemeral: true,
-    });
-    return
-  }
-
-  const responsePanel = await apiFetch('/ticket/panel', {
-    method: 'POST',
-    body: {
-      titel: 'Click to open a ticket',
-      message: 'Click on the button corresponding to the type of ticket you wish to open',
-      embed_color: '#248045',
-      channel_id: createChannel.id,
-      ticket_types: [ticketButton.id]
-    },
-  });
-
-  if (!responsePanel.ok) {
-    await interaction.editReply({
-      content: 'The Ticket Panel could not be created. Please try again later. If this error persists, please report to the staff team.',
-      ephemeral: true,
-    });
-    return
+    return;
   }
 
   await interaction.editReply({
