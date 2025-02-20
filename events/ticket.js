@@ -6,6 +6,7 @@ import {
 } from 'discord.js';
 import { apiFetch } from '../utils/apiFetch.js';
 import ticketState from '../states/TicketState.js';
+import { replaceUser, replaceChannel } from '../utils/mentions.js';
 
 export const ticketHandler = async (interaction) => {
   if (interaction.isModalSubmit()) {
@@ -127,16 +128,36 @@ export const ticketMessageUpdateHandler = async (message) => {
 
 const addTranscript = (message) => {
   if (Object.keys(ticketState.getChannelIds()).includes(message.channelId)) {
+    const members = message.guild.members;
+    const channels = message.guild.channels;
     const attachments = JSON.stringify(message.attachments);
-    const embeds = JSON.stringify(message.embeds);
+
+    const embeds = message.embeds.map((embed) => ({
+      ...embed.data,
+      description: replaceChannel(
+        replaceUser(embed.description, members),
+        channels
+      ),
+      title: replaceChannel(replaceUser(embed.title, members), channels),
+      fields: embed.fields.map((field) => ({
+        ...field,
+        name: replaceChannel(replaceUser(field.name, members), channels),
+        value: replaceChannel(replaceUser(field.value, members), channels),
+      })),
+    }));
+
     const stickers = message.stickers.map((sticker) => sticker.name).join(', ');
     let messageContent = message.content;
     if (stickers) {
       messageContent += `\nStickers: ${stickers}`;
     }
     if (message.reference) {
-      messageContent += `Forward from: ${message.reference.guildId}/${message.reference.channelId}/${message.reference.messageId}`
+      messageContent += `Forward from: ${message.reference.guildId}/${message.reference.channelId}/${message.reference.messageId}`;
     }
+
+    messageContent = replaceUser(messageContent, members);
+    messageContent = replaceChannel(messageContent, channels);
+
     apiFetch('ticket/transcript', {
       method: 'POST',
       body: {
@@ -145,7 +166,7 @@ const addTranscript = (message) => {
         message_id: message.id,
         message: messageContent,
         attachments: attachments,
-        embeds: embeds,
+        embeds: JSON.stringify(embeds),
       },
     });
   }

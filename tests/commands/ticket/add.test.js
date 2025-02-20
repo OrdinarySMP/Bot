@@ -13,6 +13,11 @@ const interaction = {
     getUser: vi.fn().mockReturnValue(user),
   },
   channel: {
+    send: vi.fn().mockReturnValue(
+      Promise.resolve({
+        delete: vi.fn(),
+      })
+    ),
     permissionOverwrites: {
       edit: vi.fn(),
     },
