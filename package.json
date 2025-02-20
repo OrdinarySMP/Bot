@@ -1,7 +1,6 @@
 {
   "name": "ordinarybrobot",
-  "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
   "type": "module",
   "scripts": {
     "start": "node index.js",
@@ -10,17 +9,6 @@
     "test": "vitest",
     "coverage": "vitest run --coverage"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PadBro/OrdinaryBroBot.git"
-  },
-  "author": "PadBro",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/PadBro/OrdinaryBroBot/issues"
-  },
-  "homepage": "https://github.com/PadBro/OrdinaryBroBot#readme",
-  "description": "",
   "dependencies": {
     "dayjs": "^1.11.13",
     "discord.js": "^14.16.3",
