@@ -134,6 +134,9 @@ const addTranscript = (message) => {
     if (stickers) {
       messageContent += `\nStickers: ${stickers}`;
     }
+    if (message.reference) {
+      messageContent += `Forward from: ${message.reference.guildId}/${message.reference.channelId}/${message.reference.messageId}`
+    }
     apiFetch('ticket/transcript', {
       method: 'POST',
       body: {
