@@ -31,8 +31,8 @@ export const execute = async (interaction) => {
     ViewChannel: true,
   });
 
-  const message = await interaction.channel.send(`${user}`)
-  await message.delete()
+  const message = await interaction.channel.send(`${user}`);
+  await message.delete();
 
   interaction.reply({
     embeds: [

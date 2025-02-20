@@ -129,13 +129,18 @@ const addTranscript = (message) => {
   if (Object.keys(ticketState.getChannelIds()).includes(message.channelId)) {
     const attachments = JSON.stringify(message.attachments);
     const embeds = JSON.stringify(message.embeds);
+    const stickers = message.stickers.map((sticker) => sticker.name).join(', ');
+    let messageContent = message.content;
+    if (stickers) {
+      messageContent += `\nStickers: ${stickers}`;
+    }
     apiFetch('ticket/transcript', {
       method: 'POST',
       body: {
         ticket_id: ticketState.getChannelIds()[message.channelId],
         discord_user_id: message.author.id,
         message_id: message.id,
-        message: message.content,
+        message: messageContent,
         attachments: attachments,
         embeds: embeds,
       },
