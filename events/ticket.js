@@ -162,7 +162,7 @@ export const ticketMessageDeleteHandler = async (message) => {
   });
 };
 
-const addTranscript = (message) => {
+const addTranscript = async (message) => {
   if (Object.keys(ticketState.getChannelIds()).includes(message.channelId)) {
     try {
       const members = message.guild.members;
