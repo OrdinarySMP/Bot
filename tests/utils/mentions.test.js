@@ -30,7 +30,7 @@ it('can replace user mentions', async () => {
       },
     });
   const result = replaceUser(mentionString, members);
-  expect(result).toBe('Global Name Username <@789789798789789789>');
+  expect(result).toBe('@Global Name @Username <@789789798789789789>');
 });
 
 it('can replace channel mentions', async () => {
@@ -43,5 +43,5 @@ it('can replace channel mentions', async () => {
       name: null,
     });
   const result = replaceChannel(mentionString, members);
-  expect(result).toBe('Channel name <#456456456456456456>');
+  expect(result).toBe('#Channel name <#456456456456456456>');
 });

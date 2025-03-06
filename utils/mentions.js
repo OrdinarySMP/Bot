@@ -6,7 +6,10 @@ export const replaceUser = (message, members) => {
     (userMention) => {
       const matches = userMention.match(MessageMentions.UsersPattern);
       const member = members.cache.get(matches.groups.id);
-      return member.user.globalName ?? member.user.username ?? userMention;
+      if (member.user.globalName ?? member.user.username) {
+        return `@${member.user.globalName ?? member.user.username}`;
+      }
+      return userMention;
     }
   );
 };
@@ -17,7 +20,10 @@ export const replaceChannel = (message, channels) => {
     (channelMention) => {
       const matches = channelMention.match(MessageMentions.ChannelsPattern);
       const channel = channels.cache.get(matches.groups.id);
-      return channel.name ?? channelMention;
+      if (channel.name) {
+        return `#${channel.name}`;
+      }
+      return channelMention;
     }
   );
 };
