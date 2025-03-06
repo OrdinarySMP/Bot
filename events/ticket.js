@@ -3,6 +3,9 @@ import {
   TextInputBuilder,
   ActionRowBuilder,
   TextInputStyle,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
 } from 'discord.js';
 import { apiFetch } from '../utils/apiFetch.js';
 import ticketState from '../states/TicketState.js';
@@ -96,8 +99,36 @@ export const ticketHandler = async (interaction) => {
     if (action === 'close') {
       // close existing ticket
       try {
+        const confirm = new ButtonBuilder()
+          .setCustomId(`ticket-closeConfirm-${id}`)
+          .setLabel('Confirm')
+          .setStyle(ButtonStyle.Danger);
+        const row = new ActionRowBuilder().addComponents(confirm);
+        const embed = new EmbedBuilder()
+          .setColor('#f0833a')
+          .setTitle('Close ticket')
+          .setDescription('Do you want to close this ticket?');
         await interaction.reply({
-          content: 'this ticket will be closed.',
+          embeds: [embed],
+          components: [row],
+        });
+      } catch (error) {
+        Logger.error(
+          `An error occurred while sending close confirmation for ticket ${id}: ${error}`
+        );
+        await interaction.editReply({
+          content:
+            'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team',
+          ephemeral: true,
+        });
+      }
+    }
+
+    if (action === 'closeConfirm') {
+      // close existing ticket
+      try {
+        await interaction.reply({
+          content: 'This ticket will be closed.',
           ephemeral: true,
         });
         const response = await apiFetch(`/ticket/${id}/close`, {
