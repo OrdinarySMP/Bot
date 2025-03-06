@@ -156,7 +156,13 @@ export const ticketMessageUpdateHandler = async (message) => {
   addTranscript(message.reactions.message);
 };
 
-const addTranscript = async (message) => {
+export const ticketMessageDeleteHandler = async (message) => {
+  apiFetch(`ticket/transcript/${message.id}`, {
+    method: 'DELETE',
+  });
+};
+
+const addTranscript = (message) => {
   if (Object.keys(ticketState.getChannelIds()).includes(message.channelId)) {
     try {
       const members = message.guild.members;

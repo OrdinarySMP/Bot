@@ -24,6 +24,7 @@ import {
   ticketHandler,
   ticketMessageCreateHandler,
   ticketMessageUpdateHandler,
+  ticketMessageDeleteHandler,
 } from './events/ticket.js';
 import { handleReactionRole } from './events/reactionRole.js';
 
@@ -58,6 +59,10 @@ client.on(Events.MessageCreate, async (message) => {
 
 client.on(Events.MessageUpdate, async (message) => {
   ticketMessageUpdateHandler(message);
+});
+
+client.on(Events.MessageDelete, async (message) => {
+  ticketMessageDeleteHandler(message);
 });
 
 client.once(Events.ClientReady, (readyClient) => {
