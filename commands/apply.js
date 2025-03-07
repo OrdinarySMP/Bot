@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { confirmActionDm } from './utils/confirmActionDm.js';
 import { Logger } from '../utils/index.js';
 import dayjs from 'dayjs';
@@ -9,48 +9,54 @@ import {
 } from './applyEmbeds.js';
 import {
   submitAnswer,
-  createApplication,
+  createApplicationSubmission,
   getApplicationQuestions,
-  submitApplication,
-  getAllApplications,
+  submitApplicationSubmission,
+  getAllApplicationSubmissions,
+  getApplicationById,
 } from './applyRequests.js';
+import { apiFetch } from '../utils/apiFetch.js';
 
-const handleQuestionAnswer = async (channel, question, appId, questionNr, questionsLength) => {
-  // TODO: send with question number in embed
-  await channel.send(question.question);
-  const collected = await channel.awaitMessages({
-    max: 1,
-    filter: (m) => !m.author.bot,
-    // time: 600_000,
-    time: 120_000,
+export const data = new SlashCommandBuilder()
+  .setName('apply')
+  .setDescription('Start an application process')
+  .addStringOption((option) =>
+    option
+      .setName('application')
+      .setDescription('The application you want to start')
+      .setRequired(true)
+      .setAutocomplete(true)
+  );
+
+export const autocomplete = async (interaction) => {
+  const inputValue = interaction.options.getFocused();
+
+  const response = await apiFetch('/application', {
+    method: 'GET',
+    query: {
+      'filter[name]': inputValue,
+    },
   });
-
-  if (collected.size === 0) {
-    await channel.send('You did not provide an answer within the time limit. The application process has been cancelled.');
-    return null;
-  }
-
-  let answer = collected.first().content;
-  if (answer.length != 0) {
-    answer += ' ';
-  }
-  collected.first().attachments.forEach((attachment) => {
-    answer += attachment.url + ' ';
-  });
-
-  await submitAnswer(appId, question.id, answer);
-  return answer;
-};
-
-const handleError = async (channel, errorMessage, logMessage) => {
-  await channel.send(errorMessage);
-  Logger.error(logMessage);
+  const applicationResponse = await response.json();
+  await interaction.respond(
+    applicationResponse.data.map((application) => ({
+      name: application.name,
+      value: `${application.id}`,
+    }))
+  );
 };
 
 export const execute = async (interaction) => {
-  // Logger.debug(Array.from(interaction.client.channels.cache.values()).map(channel => `${channel.name}: ${channel.id}`));
   const member = interaction.member;
-  const application = interaction.options.getString('application');
+  const applicationId = interaction.options.getString('application');
+  const application = await getApplicationById(applicationId)
+  if (!application) {
+    await interaction.reply({
+      content: 'The application was not found. Please use the autocomplete. If this issue pressists contact the staff team.',
+      ephemeral: true,
+    });
+    return
+  }
 
   const channel = await member.createDM();
   try {
@@ -71,9 +77,9 @@ export const execute = async (interaction) => {
 
     const confirmed = await confirmActionDm(
       channel,
-      `Are you sure you want to start an application for ${application}?`,
+      application.confirmation_message,
       'Yes',
-      'Thank you for applying. Your application process has started.'
+      `Thank you for applying. Your application process for ${application.name} has started.`
     );
 
     if (!confirmed) {
@@ -81,43 +87,52 @@ export const execute = async (interaction) => {
       return;
     }
 
-    const { appId, createdAt } = await createApplication(member.id);
-    const questions = await getApplicationQuestions();
-    // Logger.debug(createdAt);
+    const applicationSubmission = await createApplicationSubmission(application.id, member.id);
+    const questions = await getApplicationQuestions(application.id);
 
     const answerList = [];
     for (let i = 0; i < questions.length; i++) {
-      const answer = await handleQuestionAnswer(channel, questions[i], appId, i, questions.length);
+      const answer = await handleQuestionAnswer(
+        application,
+        channel,
+        questions[i],
+        applicationSubmission.id,
+        i,
+        questions.length
+      );
       if (answer == null) {
         return;
       }
       answerList.push({ question: questions[i].question, answer });
     }
 
-    const applications = await getAllApplications(member.id);
-    // Logger.debug(applications);
+    const applications = await getAllApplicationSubmissions(application.id, member.id);
     const applicationAmount = applications.length;
 
-    const targetChannel = await interaction.client.channels.cache.get('818387863623565312');
+    // TODO: don't hardcode
+    const targetChannel =
+      await interaction.client.channels.cache.get('1297505841070735362');
+      // await interaction.client.channels.cache.get(application.log_channel);
 
+
+    // TODO: needs to be moved to api to easily edit the message
     const message = await targetChannel.send({
       embeds: [
         getApplicationEmbed(
+          application,
           answerList,
           member,
-          dayjs(createdAt),
-          applicationAmount,
+          dayjs(applicationSubmission.created_at),
+          applicationAmount
         ),
       ],
     });
 
-    await submitApplication(appId, message.url);
+    await submitApplicationSubmission(applicationSubmission.id, message.url);
 
-    channel.send('Thank you for submitting your Application. You will receive feedback once it has been processed.');
-
-
-
-    // Logger.debug(`Application submitted successfully: ${message.id}`);
+    channel.send(
+      application.completion_message
+    );
   } catch (error) {
     await handleError(
       channel,
@@ -127,18 +142,65 @@ export const execute = async (interaction) => {
   }
 };
 
-export const data = new SlashCommandBuilder()
-  .setName('apply')
-  .setDescription('Start an application process')
-  .addStringOption((option) =>
-    option
-      .setName('application')
-      .setDescription('The application you want to start')
-      .setRequired(true)
-      // TODO: don't hardcode
-      .addChoices(
-        { name: 'Member', value: 'member' },
-        { name: 'EventManager', value: 'eventManager' },
-        { name: 'Staff', value: 'staff' }
+const handleQuestionAnswer = async (
+  application,
+  channel,
+  question,
+  applicationSubmissionId,
+  questionNr,
+  questionsLength
+) => {
+  const embed = new EmbedBuilder()
+    .setTitle(
+      `Application for ${application.name} question ${questionNr + 1}/${questionsLength}`
+    )
+    .setDescription(question.question)
+    .setColor('#f0833a');
+
+  await channel.send({
+    embeds: [embed],
+  });
+  const collected = await channel.awaitMessages({
+    max: 1,
+    filter: (m) => !m.author.bot,
+    // time: 600_000,
+    time: 120_000,
+  });
+
+  if (collected.size === 0) {
+    const embed = new EmbedBuilder()
+      .setTitle(
+        `Application timeout`
       )
-  );
+      .setDescription('You did not provide an answer within the time limit. The application process has been cancelled.')
+      .setColor('#ce361e');
+    await channel.send({
+      embeds: [embed]
+    });
+    return null;
+  }
+
+  let answer = collected.first().content;
+  if (answer.length != 0) {
+    answer += ' ';
+  }
+  collected.first().attachments.forEach((attachment) => {
+    answer += attachment.url + ' ';
+  });
+
+  await submitAnswer(applicationSubmissionId, question.id, answer);
+  return answer;
+};
+
+const handleError = async (channel, errorMessage, logMessage) => {
+  const embed = new EmbedBuilder()
+    .setTitle(
+      `Error`
+    )
+    .setDescription(errorMessage)
+    .setColor('#ce361e');
+  await channel.send({
+    embeds: [embed]
+  });
+  Logger.error(logMessage);
+};

@@ -18,4 +18,3 @@ export default class Logger {
     console.error(`[${Logger.getCurrentTime()}] [ERROR]: ${message}`);
   };
 }
-
