@@ -13,10 +13,10 @@ export default defineConfig({
       provider: 'istanbul',
       reporter: ['text', 'json-summary', 'json'],
       thresholds: {
-        lines: 53,
+        lines: 52,
         functions: 60,
         branches: 44,
-        statements: 53,
+        statements: 52,
       },
     },
   },

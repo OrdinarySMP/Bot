@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 import ticketState from '../../states/TicketState.js';
+import Logger from '../../utils/logger.js';
 
 export const data = new SlashCommandBuilder()
   .setName('ticket-remove')
@@ -21,21 +22,33 @@ export const execute = async (interaction) => {
   if (
     !Object.keys(ticketState.getChannelIds()).includes(interaction.channelId)
   ) {
-    interaction.reply({
+    await interaction.reply({
       content: 'This is not a ticket channel.',
       ephemeral: true,
     });
     return;
   }
 
-  interaction.channel.permissionOverwrites.delete(user);
+  try {
+    await interaction.channel.permissionOverwrites.delete(user);
 
-  interaction.reply({
-    embeds: [
-      new EmbedBuilder()
-        .setColor('#f0833a')
-        .setTitle('Remove')
-        .setDescription(`${user} has been removed from ${interaction.channel}`),
-    ],
-  });
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor('#f0833a')
+          .setTitle('Remove')
+          .setDescription(
+            `${user} has been removed from ${interaction.channel}`
+          ),
+      ],
+    });
+  } catch (error) {
+    Logger.error(`Could not remove user from ticket: ${error}`);
+
+    await interaction.reply({
+      content:
+        'Could not remove user from this ticket. Please try again later. If this error persists, please report to the staff team.',
+      ephemeral: true,
+    });
+  }
 };
