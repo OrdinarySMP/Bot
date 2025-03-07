@@ -26,6 +26,7 @@ import {
   ticketMessageUpdateHandler,
 } from './events/ticket.js';
 import { handleReactionRole } from './events/reactionRole.js';
+import dayjs from 'dayjs';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -33,6 +34,7 @@ const intents = [
   GatewayIntentBits.GuildPresences,
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildMessageReactions,
+  GatewayIntentBits.DirectMessages,
   GatewayIntentBits.MessageContent,
 ];
 const partials = [Partials.Message, Partials.Channel, Partials.Reaction];
@@ -61,7 +63,10 @@ client.on(Events.MessageUpdate, async (message) => {
 });
 
 client.once(Events.ClientReady, (readyClient) => {
-  Logger.debug(`Ready! Logged in as ${readyClient.user.tag}`);
+  Logger.debug(
+    `Ready! Logged in as ${readyClient.user.tag} at ` +
+      dayjs().format('YYYY-MM-DD HH:mm:ss')
+  );
   readyClient.user.setActivity('on play.ordinary-smp.com', {
     type: ActivityType.Playing,
   });
@@ -87,5 +92,5 @@ client.on(Events.MessageReactionRemove, async (reaction, user) => {
 });
 
 deployCommands();
-loadTickets();
+// loadTickets();
 client.login(process.env.DISCORD_TOKEN);

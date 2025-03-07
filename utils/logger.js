@@ -1,15 +1,20 @@
 /* eslint-disable no-console */
 
-export default class Loggger {
+export default class Logger {
+  static getCurrentTime() {
+    const now = new Date();
+    return now.toISOString();
+  }
+
   static debug = (message) => {
-    console.log(`[DEBUG]: ${message}`);
+    console.log(`[${Logger.getCurrentTime()}] [DEBUG]: ${message}`);
   };
 
   static warning = (message) => {
-    console.log(`[WARNING]: ${message}`);
+    console.log(`[${Logger.getCurrentTime()}] [WARNING]: ${message}`);
   };
 
   static error = (message) => {
-    console.error(`[ERROR]: ${message}`);
+    console.error(`[${Logger.getCurrentTime()}] [ERROR]: ${message}`);
   };
 }

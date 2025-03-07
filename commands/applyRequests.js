@@ -1,0 +1,92 @@
+import { apiFetch } from '../utils/apiFetch.js';
+import dayjs from 'dayjs';
+
+export const getApplicationById = async (applicationId) => {
+  const response = await apiFetch('/application', {
+    method: 'GET',
+    query: { 'filter[id]': applicationId },
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Failed to retrieve application questions: ${await response.text()}`
+    );
+  }
+  return (await response.json()).data[0];
+}
+
+export const createApplicationSubmission = async (applicationId, discordId) => {
+  const response = await apiFetch('/application-submission', {
+    method: 'POST',
+    body: {
+      application_id: applicationId,
+      discord_id: discordId,
+      state: 0
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create application submission: ${await response.text()}`);
+  }
+
+  return await response.json();
+};
+
+export const getApplicationQuestions = async (applicationId) => {
+  const response = await apiFetch('/application-question', {
+    method: 'GET',
+    query: {
+      'filter[application_id]': applicationId,
+      'filter[is_active]': true,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Failed to retrieve application questions: ${await response.text()}`
+    );
+  }
+  return (await response.json()).data;
+};
+
+export const submitAnswer = async (applicationSubmissionid, questionId, answer) => {
+  const response = await apiFetch('/application-question-answer', {
+    method: 'POST',
+    body: {
+      application_submission_id: applicationSubmissionid,
+      application_question_id: questionId,
+      answer,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to submit answer: ${await response.text()}`);
+  }
+};
+
+export const submitApplicationSubmission = async (applicationSubmissionid, messageLink) => {
+  const response = await apiFetch(`/application-submission/${applicationSubmissionid}`, {
+    method: 'PUT',
+    body: {
+      state: 1,
+      submitted_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      message_link: messageLink,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to submit application: ${await response.text()}`);
+  }
+};
+
+export const getAllApplicationSubmissions = async (applicationId, discordId) => {
+  const response = await apiFetch('/application-submission', {
+    method: 'GET',
+    query: {
+      'filter[application_id]': applicationId,
+      'filter[discord_id]': discordId,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Failed to retrieve users applications: ${await response.text()}`
+    );
+  }
+  return (await response.json()).data;
+};
