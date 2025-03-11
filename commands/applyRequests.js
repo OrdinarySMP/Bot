@@ -12,7 +12,7 @@ export const getApplicationById = async (applicationId) => {
     );
   }
   return (await response.json()).data[0];
-}
+};
 
 export const createApplicationSubmission = async (applicationId, discordId) => {
   const response = await apiFetch('/application-submission', {
@@ -20,15 +20,17 @@ export const createApplicationSubmission = async (applicationId, discordId) => {
     body: {
       application_id: applicationId,
       discord_id: discordId,
-      state: 0
+      state: 0,
     },
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to create application submission: ${await response.text()}`);
+    throw new Error(
+      `Failed to create application submission: ${await response.text()}`
+    );
   }
 
-  return await response.json();
+  return (await response.json()).data;
 };
 
 export const getApplicationQuestions = async (applicationId) => {
@@ -47,7 +49,11 @@ export const getApplicationQuestions = async (applicationId) => {
   return (await response.json()).data;
 };
 
-export const submitAnswer = async (applicationSubmissionid, questionId, answer) => {
+export const submitAnswer = async (
+  applicationSubmissionid,
+  questionId,
+  answer
+) => {
   const response = await apiFetch('/application-question-answer', {
     method: 'POST',
     body: {
@@ -61,21 +67,64 @@ export const submitAnswer = async (applicationSubmissionid, questionId, answer) 
   }
 };
 
-export const submitApplicationSubmission = async (applicationSubmissionid, messageLink) => {
-  const response = await apiFetch(`/application-submission/${applicationSubmissionid}`, {
-    method: 'PUT',
-    body: {
-      state: 1,
-      submitted_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      message_link: messageLink,
-    },
-  });
+export const submitApplicationSubmission = async (applicationSubmissionid) => {
+  const response = await apiFetch(
+    `/application-submission/${applicationSubmissionid}`,
+    {
+      method: 'PUT',
+      body: {
+        state: 1,
+        submitted_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      },
+    }
+  );
   if (!response.ok) {
     throw new Error(`Failed to submit application: ${await response.text()}`);
   }
 };
 
-export const getAllApplicationSubmissions = async (applicationId, discordId) => {
+export const acceptApplicationSubmission = async (
+  applicationSubmissionid,
+  userId
+) => {
+  const response = await apiFetch(
+    `/application-submission/${applicationSubmissionid}`,
+    {
+      method: 'PUT',
+      body: {
+        state: 2,
+        handled_by: userId,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to accept application: ${await response.text()}`);
+  }
+};
+
+export const denyApplicationSubmission = async (
+  applicationSubmissionid,
+  userId
+) => {
+  const response = await apiFetch(
+    `/application-submission/${applicationSubmissionid}`,
+    {
+      method: 'PUT',
+      body: {
+        state: 3,
+        handled_by: userId,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to deny application: ${await response.text()}`);
+  }
+};
+
+export const getAllApplicationSubmissions = async (
+  applicationId,
+  discordId
+) => {
   const response = await apiFetch('/application-submission', {
     method: 'GET',
     query: {

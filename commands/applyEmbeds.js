@@ -6,8 +6,8 @@ export const closedDmEmbed = new EmbedBuilder()
   .setTitle('Error sending DM')
   .setColor('#ce361e')
   .setDescription(
-    "I was unable to send you a DM. Please make sure your DMs are open and try again.\n" +
-    "If you don't know how, [click here](https://support.discord.com/hc/en-us/articles/217916488-Blocking-Privacy-Settings)"
+    'I was unable to send you a DM. Please make sure your DMs are open and try again.\n' +
+      "If you don't know how, [click here](https://support.discord.com/hc/en-us/articles/217916488-Blocking-Privacy-Settings)"
   );
 
 export const applicationStartedDmEmbed = new EmbedBuilder()

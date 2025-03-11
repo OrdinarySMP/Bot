@@ -1,18 +1,12 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { confirmActionDm } from './utils/confirmActionDm.js';
 import { Logger } from '../utils/index.js';
-import dayjs from 'dayjs';
-import {
-  applicationStartedDmEmbed,
-  closedDmEmbed,
-  getApplicationEmbed,
-} from './applyEmbeds.js';
+import { applicationStartedDmEmbed, closedDmEmbed } from './applyEmbeds.js';
 import {
   submitAnswer,
   createApplicationSubmission,
   getApplicationQuestions,
   submitApplicationSubmission,
-  getAllApplicationSubmissions,
   getApplicationById,
 } from './applyRequests.js';
 import { apiFetch } from '../utils/apiFetch.js';
@@ -23,7 +17,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName('application')
-      .setDescription('The application you want to start')
+      .setDescription('Application name')
       .setRequired(true)
       .setAutocomplete(true)
   );
@@ -49,13 +43,14 @@ export const autocomplete = async (interaction) => {
 export const execute = async (interaction) => {
   const member = interaction.member;
   const applicationId = interaction.options.getString('application');
-  const application = await getApplicationById(applicationId)
+  const application = await getApplicationById(applicationId);
   if (!application) {
     await interaction.reply({
-      content: 'The application was not found. Please use the autocomplete. If this issue pressists contact the staff team.',
+      content:
+        'The application was not found. Please use the autocomplete. If this issue pressists contact the staff team.',
       ephemeral: true,
     });
-    return
+    return;
   }
 
   const channel = await member.createDM();
@@ -87,7 +82,10 @@ export const execute = async (interaction) => {
       return;
     }
 
-    const applicationSubmission = await createApplicationSubmission(application.id, member.id);
+    const applicationSubmission = await createApplicationSubmission(
+      application.id,
+      member.id
+    );
     const questions = await getApplicationQuestions(application.id);
 
     const answerList = [];
@@ -106,33 +104,9 @@ export const execute = async (interaction) => {
       answerList.push({ question: questions[i].question, answer });
     }
 
-    const applications = await getAllApplicationSubmissions(application.id, member.id);
-    const applicationAmount = applications.length;
+    await submitApplicationSubmission(applicationSubmission.id);
 
-    // TODO: don't hardcode
-    const targetChannel =
-      await interaction.client.channels.cache.get('1297505841070735362');
-      // await interaction.client.channels.cache.get(application.log_channel);
-
-
-    // TODO: needs to be moved to api to easily edit the message
-    const message = await targetChannel.send({
-      embeds: [
-        getApplicationEmbed(
-          application,
-          answerList,
-          member,
-          dayjs(applicationSubmission.created_at),
-          applicationAmount
-        ),
-      ],
-    });
-
-    await submitApplicationSubmission(applicationSubmission.id, message.url);
-
-    channel.send(
-      application.completion_message
-    );
+    channel.send(application.completion_message);
   } catch (error) {
     await handleError(
       channel,
@@ -169,13 +143,13 @@ const handleQuestionAnswer = async (
 
   if (collected.size === 0) {
     const embed = new EmbedBuilder()
-      .setTitle(
-        `Application timeout`
+      .setTitle(`Application timeout`)
+      .setDescription(
+        'You did not provide an answer within the time limit. The application process has been cancelled.'
       )
-      .setDescription('You did not provide an answer within the time limit. The application process has been cancelled.')
       .setColor('#ce361e');
     await channel.send({
-      embeds: [embed]
+      embeds: [embed],
     });
     return null;
   }
@@ -194,13 +168,11 @@ const handleQuestionAnswer = async (
 
 const handleError = async (channel, errorMessage, logMessage) => {
   const embed = new EmbedBuilder()
-    .setTitle(
-      `Error`
-    )
+    .setTitle(`Error`)
     .setDescription(errorMessage)
     .setColor('#ce361e');
   await channel.send({
-    embeds: [embed]
+    embeds: [embed],
   });
   Logger.error(logMessage);
 };

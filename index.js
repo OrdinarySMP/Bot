@@ -25,6 +25,7 @@ import {
   ticketMessageCreateHandler,
   ticketMessageUpdateHandler,
 } from './events/ticket.js';
+import { applicationHandler } from './events/application.js';
 import { handleReactionRole } from './events/reactionRole.js';
 import dayjs from 'dayjs';
 
@@ -52,6 +53,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     modalHandler(interaction);
   }
   ticketHandler(interaction);
+  applicationHandler(interaction);
 });
 
 client.on(Events.MessageCreate, async (message) => {
@@ -92,5 +94,5 @@ client.on(Events.MessageReactionRemove, async (reaction, user) => {
 });
 
 deployCommands();
-// loadTickets();
+loadTickets();
 client.login(process.env.DISCORD_TOKEN);
