@@ -4,7 +4,10 @@ import dayjs from 'dayjs';
 export const getApplicationById = async (applicationId) => {
   const response = await apiFetch('/application', {
     method: 'GET',
-    query: { 'filter[id]': applicationId },
+    query: {
+      'filter[id]': applicationId,
+      include: 'restrictedRoles',
+    },
   });
   if (!response.ok) {
     throw new Error(
@@ -52,7 +55,8 @@ export const getApplicationQuestions = async (applicationId) => {
 export const submitAnswer = async (
   applicationSubmissionid,
   questionId,
-  answer
+  answer,
+  attachments,
 ) => {
   const response = await apiFetch('/application-question-answer', {
     method: 'POST',
@@ -60,6 +64,7 @@ export const submitAnswer = async (
       application_submission_id: applicationSubmissionid,
       application_question_id: questionId,
       answer,
+      attachments,
     },
   });
   if (!response.ok) {
@@ -85,7 +90,9 @@ export const submitApplicationSubmission = async (applicationSubmissionid) => {
 
 export const acceptApplicationSubmission = async (
   applicationSubmissionid,
-  userId
+  userId,
+  templateId = null,
+  reason = null,
 ) => {
   const response = await apiFetch(
     `/application-submission/${applicationSubmissionid}`,
@@ -94,6 +101,8 @@ export const acceptApplicationSubmission = async (
       body: {
         state: 2,
         handled_by: userId,
+        application_response_id: templateId,
+        custom_response: reason,
       },
     }
   );
@@ -104,7 +113,9 @@ export const acceptApplicationSubmission = async (
 
 export const denyApplicationSubmission = async (
   applicationSubmissionid,
-  userId
+  userId,
+  templateId = null,
+  reason = null,
 ) => {
   const response = await apiFetch(
     `/application-submission/${applicationSubmissionid}`,
@@ -113,6 +124,8 @@ export const denyApplicationSubmission = async (
       body: {
         state: 3,
         handled_by: userId,
+        application_response_id: templateId,
+        custom_response: reason,
       },
     }
   );

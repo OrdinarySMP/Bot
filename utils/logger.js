@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
+import dayjs from 'dayjs';
 
 export default class Logger {
   static getCurrentTime() {
-    const now = new Date();
-    return now.toISOString();
+    return dayjs().format('YYYY-MM-DD HH:mm:ss');
   }
 
   static debug = (message) => {

@@ -46,6 +46,9 @@ export const modalHandler = async (interaction) => {
   if (interaction.customId.match(/^ticket-.?/)) {
     return;
   }
+  if (interaction.customId.match(/^applicationSubmission-.?/)) {
+    return;
+  }
 
   if (!modal) {
     Logger.error(`No modal matching ${interaction.customId} was found.`);

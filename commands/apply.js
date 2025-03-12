@@ -53,6 +53,16 @@ export const execute = async (interaction) => {
     return;
   }
 
+  for (const restrictedRole of application.restricted_roles) {
+    if (member.roles.cache.has(restrictedRole.role_id)) {
+      await interaction.reply({
+        content: 'You do not have the permission to execute that command.',
+        ephemeral: true,
+      });
+      return
+    }
+  }
+
   const channel = await member.createDM();
   try {
     await channel.send('Thank you for starting an application process');
@@ -105,7 +115,6 @@ export const execute = async (interaction) => {
     }
 
     await submitApplicationSubmission(applicationSubmission.id);
-
     channel.send(application.completion_message);
   } catch (error) {
     await handleError(
@@ -158,11 +167,14 @@ const handleQuestionAnswer = async (
   if (answer.length != 0) {
     answer += ' ';
   }
+  let attachments = ''
   collected.first().attachments.forEach((attachment) => {
-    answer += attachment.url + ' ';
+    attachments += attachment.url + ' ';
   });
 
-  await submitAnswer(applicationSubmissionId, question.id, answer);
+  answer += attachments
+
+  await submitAnswer(applicationSubmissionId, question.id, answer, attachments);
   return answer;
 };
 

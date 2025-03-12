@@ -27,7 +27,6 @@ import {
 } from './events/ticket.js';
 import { applicationHandler } from './events/application.js';
 import { handleReactionRole } from './events/reactionRole.js';
-import dayjs from 'dayjs';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -66,8 +65,7 @@ client.on(Events.MessageUpdate, async (message) => {
 
 client.once(Events.ClientReady, (readyClient) => {
   Logger.debug(
-    `Ready! Logged in as ${readyClient.user.tag} at ` +
-      dayjs().format('YYYY-MM-DD HH:mm:ss')
+    `Ready! Logged in as ${readyClient.user.tag}`
   );
   readyClient.user.setActivity('on play.ordinary-smp.com', {
     type: ActivityType.Playing,
