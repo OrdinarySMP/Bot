@@ -1,15 +1,20 @@
 /* eslint-disable no-console */
+import dayjs from 'dayjs';
 
-export default class Loggger {
+export default class Logger {
+  static getCurrentTime() {
+    return dayjs().format('YYYY-MM-DD HH:mm:ss');
+  }
+
   static debug = (message) => {
-    console.log(`[DEBUG]: ${message}`);
+    console.log(`[${Logger.getCurrentTime()}] [DEBUG]: ${message}`);
   };
 
   static warning = (message) => {
-    console.log(`[WARNING]: ${message}`);
+    console.log(`[${Logger.getCurrentTime()}] [WARNING]: ${message}`);
   };
 
   static error = (message) => {
-    console.error(`[ERROR]: ${message}`);
+    console.error(`[${Logger.getCurrentTime()}] [ERROR]: ${message}`);
   };
 }
