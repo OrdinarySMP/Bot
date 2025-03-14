@@ -1,15 +1,11 @@
-import {
-  SlashCommandBuilder,
-  PermissionFlagsBits,
-  EmbedBuilder,
-} from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import ticketState from '../../states/TicketState.js';
 import Logger from '../../utils/logger.js';
+import { apiFetch } from '../../utils/apiFetch.js';
 
 export const data = new SlashCommandBuilder()
   .setName('ticket-remove')
   .setDescription('Remove a user from the current ticket')
-  .setDefaultMemberPermissions(PermissionFlagsBits.ViewAuditLog)
   .addUserOption((option) =>
     option
       .setName('user')
@@ -28,8 +24,31 @@ export const execute = async (interaction) => {
     });
     return;
   }
-
+  const ticketId = ticketState.getChannelIds()[interaction.channelId];
   try {
+    const response = await apiFetch('/ticket/team', {
+      method: 'GET',
+      query: {
+        'filter[ticketButtons.id]': ticketId,
+        include: 'ticketTeamRoles',
+      },
+    });
+    const ticketTeam = await response.json();
+    const ticketTeamRoleIds = ticketTeam.data[0].ticket_team_roles.map(
+      (ticketTeamRole) => ticketTeamRole.role_id
+    );
+    const hasRole = interaction.member.roles.cache.some((role) =>
+      ticketTeamRoleIds.includes(role.id)
+    );
+    if (!hasRole) {
+      await interaction.reply({
+        content:
+          'You dont have the permission to remove a user from this ticket.',
+        ephemeral: true,
+      });
+      return;
+    }
+
     await interaction.channel.permissionOverwrites.delete(user);
 
     await interaction.reply({

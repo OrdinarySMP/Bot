@@ -2,7 +2,6 @@ import { ChannelType, PermissionsBitField } from 'discord.js';
 import { expect, it, vi, beforeEach } from 'vitest';
 import { execute } from '../../../commands/ticket/setup.js';
 import { apiFetch } from '../../../utils/apiFetch.js';
-// import fetch from 'node-fetch';
 
 const createChannelMock = vi.fn();
 
