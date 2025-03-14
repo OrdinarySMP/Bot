@@ -1,6 +1,7 @@
 import { expect, it, vi, beforeEach } from 'vitest';
 import { execute } from '../../../commands/ticket/remove.js';
 import ticketState from '../../../states/TicketState.js';
+import { apiFetch } from '../../../utils/apiFetch.js';
 
 const user = {
   id: 123,
@@ -18,6 +19,13 @@ const interaction = {
     },
   },
   reply: vi.fn(),
+  member: {
+    roles: {
+      cache: {
+        some: vi.fn().mockReturnValue(true),
+      },
+    },
+  },
 };
 
 beforeEach(() => {
@@ -35,6 +43,19 @@ it('ignores none ticket channels', async () => {
 });
 
 it('can execute', async () => {
+  vi.mock('../../../utils/apiFetch.js');
+  apiFetch.mockReturnValue(
+    Promise.resolve({
+      json: () =>
+        Promise.resolve({
+          data: [
+            {
+              ticket_team_roles: [{ role_id: '132123123' }],
+            },
+          ],
+        }),
+    })
+  );
   ticketState.addChannelId('1', '132123123');
   await execute(interaction);
 
