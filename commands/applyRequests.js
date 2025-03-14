@@ -56,7 +56,7 @@ export const submitAnswer = async (
   applicationSubmissionid,
   questionId,
   answer,
-  attachments,
+  attachments
 ) => {
   const response = await apiFetch('/application-question-answer', {
     method: 'POST',
@@ -68,6 +68,10 @@ export const submitAnswer = async (
     },
   });
   if (!response.ok) {
+    const error = await response.json();
+    if (error.message === 'Application was cancelled.') {
+      throw new Error(error.message);
+    }
     throw new Error(`Failed to submit answer: ${await response.text()}`);
   }
 };
@@ -92,7 +96,7 @@ export const acceptApplicationSubmission = async (
   applicationSubmissionid,
   userId,
   templateId = null,
-  reason = null,
+  reason = null
 ) => {
   const response = await apiFetch(
     `/application-submission/${applicationSubmissionid}`,
@@ -115,7 +119,7 @@ export const denyApplicationSubmission = async (
   applicationSubmissionid,
   userId,
   templateId = null,
-  reason = null,
+  reason = null
 ) => {
   const response = await apiFetch(
     `/application-submission/${applicationSubmissionid}`,

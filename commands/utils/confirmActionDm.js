@@ -1,10 +1,16 @@
-import { ButtonBuilder, ButtonStyle, ActionRowBuilder } from 'discord.js';
+import {
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+  EmbedBuilder,
+} from 'discord.js';
 
 export const confirmActionDm = async (
   channel,
   confirmMessage,
   confirmLabel,
-  confirmationMessage
+  confirmationMessage,
+  originalMessage = null
 ) => {
   const confirm = new ButtonBuilder()
     .setCustomId('confirm')
@@ -18,11 +24,22 @@ export const confirmActionDm = async (
 
   const row = new ActionRowBuilder().addComponents(confirm, cancel);
 
-  const response = await channel.send({
-    content: confirmMessage,
+  const embed = new EmbedBuilder()
+    .setTitle(`Your Application`)
+    .setDescription(confirmMessage)
+    .setColor('#f0833a');
+
+  const data = {
+    content: '',
+    embeds: [embed],
     components: [row],
-    ephemeral: true,
-  });
+  };
+  let response = null;
+  if (originalMessage) {
+    response = await originalMessage.edit(data);
+  } else {
+    response = await channel.send(data);
+  }
   const collectorFilter = (i) => i.user.id === channel.recipient.id;
 
   let confirmation;
@@ -33,16 +50,17 @@ export const confirmActionDm = async (
     });
 
     if (confirmation.customId === 'confirm') {
+      embed.setDescription(confirmationMessage);
       await confirmation.update({
-        content: confirmationMessage,
+        embeds: [embed],
         components: [],
       });
       return true;
     } else if (confirmation.customId === 'cancel') {
+      embed.setDescription('Action cancelled');
       await confirmation.update({
-        content: 'Action cancelled',
+        embeds: [embed],
         components: [],
-        ephemeral: true,
       });
       return false;
     }

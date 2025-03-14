@@ -11,13 +11,13 @@ import {
 
 export const applicationHandler = async (interaction) => {
   if (interaction.isModalSubmit()) {
-    handleModal(interaction)
+    handleModal(interaction);
   }
   if (interaction.isButton()) {
     handleButtons(interaction);
   }
   if (interaction.isStringSelectMenu()) {
-    handleSelectMenu(interaction)
+    handleSelectMenu(interaction);
   }
 };
 
@@ -47,7 +47,7 @@ const handleModal = async (interaction) => {
     });
     denyApplicationSubmission(id, interaction.user.id, null, reason);
   }
-}
+};
 
 const handleButtons = async (interaction) => {
   const match = interaction.customId.match(
@@ -75,36 +75,36 @@ const handleButtons = async (interaction) => {
     denyApplicationSubmission(id, interaction.user.id);
   }
 
-  if (action === 'acceptWithReason'){
-      const modal = new ModalBuilder()
-        .setCustomId(`applicationSubmission-acceptWithReason-${id}`)
-        .setTitle('Accept application with reason');
+  if (action === 'acceptWithReason') {
+    const modal = new ModalBuilder()
+      .setCustomId(`applicationSubmission-acceptWithReason-${id}`)
+      .setTitle('Accept application with reason');
 
-      const reasonInput = new TextInputBuilder()
-        .setCustomId('reason')
-        .setLabel('Reason:')
-        .setStyle(TextInputStyle.Paragraph);
+    const reasonInput = new TextInputBuilder()
+      .setCustomId('reason')
+      .setLabel('Reason:')
+      .setStyle(TextInputStyle.Paragraph);
 
-      const answerActionRow = new ActionRowBuilder().addComponents(reasonInput);
+    const answerActionRow = new ActionRowBuilder().addComponents(reasonInput);
 
-      modal.addComponents(answerActionRow);
-      await interaction.showModal(modal);
+    modal.addComponents(answerActionRow);
+    await interaction.showModal(modal);
   }
 
-  if (action === 'denyWithReason'){
-      const modal = new ModalBuilder()
-        .setCustomId(`applicationSubmission-denyWithReason-${id}`)
-        .setTitle('Deny application with reason');
+  if (action === 'denyWithReason') {
+    const modal = new ModalBuilder()
+      .setCustomId(`applicationSubmission-denyWithReason-${id}`)
+      .setTitle('Deny application with reason');
 
-      const reasonInput = new TextInputBuilder()
-        .setCustomId('reason')
-        .setLabel('Reason:')
-        .setStyle(TextInputStyle.Paragraph);
+    const reasonInput = new TextInputBuilder()
+      .setCustomId('reason')
+      .setLabel('Reason:')
+      .setStyle(TextInputStyle.Paragraph);
 
-      const answerActionRow = new ActionRowBuilder().addComponents(reasonInput);
+    const answerActionRow = new ActionRowBuilder().addComponents(reasonInput);
 
-      modal.addComponents(answerActionRow);
-      await interaction.showModal(modal);
+    modal.addComponents(answerActionRow);
+    await interaction.showModal(modal);
   }
 };
 
@@ -117,14 +117,18 @@ const handleSelectMenu = async (interaction) => {
   }
   const action = match[1]; // action
   const applicationSubmissionid = match[2]; // id
-  const templateId = interaction.values[0]
+  const templateId = interaction.values[0];
 
   if (action === 'acceptTemplate') {
     await interaction.reply({
       content: 'Accepting application',
       ephemeral: true,
     });
-    acceptApplicationSubmission(applicationSubmissionid, interaction.user.id, templateId);
+    acceptApplicationSubmission(
+      applicationSubmissionid,
+      interaction.user.id,
+      templateId
+    );
   }
 
   if (action === 'denyTemplate') {
@@ -132,6 +136,10 @@ const handleSelectMenu = async (interaction) => {
       content: 'Denying application',
       ephemeral: true,
     });
-    denyApplicationSubmission(applicationSubmissionid, interaction.user.id, templateId);
+    denyApplicationSubmission(
+      applicationSubmissionid,
+      interaction.user.id,
+      templateId
+    );
   }
 };

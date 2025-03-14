@@ -59,13 +59,16 @@ export const execute = async (interaction) => {
         content: 'You do not have the permission to execute that command.',
         ephemeral: true,
       });
-      return
+      return;
     }
   }
 
   const channel = await member.createDM();
+  let originalMessage = null;
   try {
-    await channel.send('Thank you for starting an application process');
+    originalMessage = await channel.send(
+      'Thank you for starting an application process'
+    );
   } catch (e) {
     Logger.error('cannot send direct message: ' + e);
     await interaction.reply({
@@ -84,7 +87,8 @@ export const execute = async (interaction) => {
       channel,
       application.confirmation_message,
       'Yes',
-      `Thank you for applying. Your application process for ${application.name} has started.`
+      `Thank you for applying.\nYour application process for \`${application.name}\` has started.`,
+      originalMessage
     );
 
     if (!confirmed) {
@@ -115,12 +119,28 @@ export const execute = async (interaction) => {
     }
 
     await submitApplicationSubmission(applicationSubmission.id);
-    channel.send(application.completion_message);
+
+    const embed = new EmbedBuilder()
+      .setTitle(`Application for \`${application.name}\` completed`)
+      .setDescription(application.completion_message)
+      .setColor('#f0833a');
+    channel.send({
+      embeds: [embed],
+    });
   } catch (error) {
+    let message =
+      'An error occurred during the application process. Please try again later or contact the staff team.';
+    let logError = true;
+    if (error.message === 'Application was cancelled.') {
+      message =
+        'Your prevoius application was cancelled in favor for your new application';
+      logError = false;
+    }
     await handleError(
       channel,
-      'An error occurred during the application process. Please try again later or contact the staff team.',
-      `Application error: ${error.message}`
+      message,
+      `Application error: ${error.message}`,
+      logError
     );
   }
 };
@@ -135,17 +155,21 @@ const handleQuestionAnswer = async (
 ) => {
   const embed = new EmbedBuilder()
     .setTitle(
-      `Application for ${application.name} question ${questionNr + 1}/${questionsLength}`
+      `Application for \`${application.name}\` question ${questionNr + 1}/${questionsLength}`
     )
     .setDescription(question.question)
-    .setColor('#f0833a');
+    .setColor('#ffdbe5');
 
   await channel.send({
     embeds: [embed],
   });
   const collected = await channel.awaitMessages({
     max: 1,
-    filter: (m) => !m.author.bot,
+    filter: (message) => {
+      return (
+        !message.author.bot && (message.content || message.attachments.size)
+      );
+    },
     // time: 600_000,
     time: 120_000,
   });
@@ -167,18 +191,23 @@ const handleQuestionAnswer = async (
   if (answer.length != 0) {
     answer += ' ';
   }
-  let attachments = ''
+  let attachments = '';
   collected.first().attachments.forEach((attachment) => {
     attachments += attachment.url + ' ';
   });
 
-  answer += attachments
+  answer += attachments;
 
   await submitAnswer(applicationSubmissionId, question.id, answer, attachments);
   return answer;
 };
 
-const handleError = async (channel, errorMessage, logMessage) => {
+const handleError = async (
+  channel,
+  errorMessage,
+  logMessage,
+  logError = true
+) => {
   const embed = new EmbedBuilder()
     .setTitle(`Error`)
     .setDescription(errorMessage)
@@ -186,5 +215,7 @@ const handleError = async (channel, errorMessage, logMessage) => {
   await channel.send({
     embeds: [embed],
   });
-  Logger.error(logMessage);
+  if (logError) {
+    Logger.error(logMessage);
+  }
 };

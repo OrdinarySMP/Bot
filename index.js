@@ -64,9 +64,7 @@ client.on(Events.MessageUpdate, async (message) => {
 });
 
 client.once(Events.ClientReady, (readyClient) => {
-  Logger.debug(
-    `Ready! Logged in as ${readyClient.user.tag}`
-  );
+  Logger.debug(`Ready! Logged in as ${readyClient.user.tag}`);
   readyClient.user.setActivity('on play.ordinary-smp.com', {
     type: ActivityType.Playing,
   });
