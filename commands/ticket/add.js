@@ -26,17 +26,18 @@ export const execute = async (interaction) => {
   }
   const ticketId = ticketState.getChannelIds()[interaction.channelId];
   try {
-    const response = await apiFetch('/ticket/team', {
+    const response = await apiFetch('/ticket', {
       method: 'GET',
       query: {
-        'filter[ticketButtons.id]': ticketId,
-        include: 'ticketTeamRoles',
+        'filter[id]': ticketId,
+        include: 'ticketButton.ticketTeam.ticketTeamRoles',
       },
     });
-    const ticketTeam = await response.json();
-    const ticketTeamRoleIds = ticketTeam.data[0].ticket_team_roles.map(
-      (ticketTeamRole) => ticketTeamRole.role_id
-    );
+    const ticket = await response.json();
+    const ticketTeamRoleIds =
+      ticket.data[0].ticket_button.ticket_team.ticket_team_roles.map(
+        (ticketTeamRole) => ticketTeamRole.role_id
+      );
     const hasRole = interaction.member.roles.cache.some((role) =>
       ticketTeamRoleIds.includes(role.id)
     );

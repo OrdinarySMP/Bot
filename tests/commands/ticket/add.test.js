@@ -55,7 +55,11 @@ it('can execute', async () => {
         Promise.resolve({
           data: [
             {
-              ticket_team_roles: [{ role_id: '132123123' }],
+              ticket_button: {
+                ticket_team: {
+                  ticket_team_roles: [{ role_id: '132123123' }],
+                },
+              },
             },
           ],
         }),
