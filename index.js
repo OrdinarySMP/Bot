@@ -26,6 +26,7 @@ import {
   ticketMessageUpdateHandler,
   ticketMessageDeleteHandler,
 } from './events/ticket.js';
+import { applicationHandler } from './events/application.js';
 import { handleReactionRole } from './events/reactionRole.js';
 
 const intents = [
@@ -34,6 +35,7 @@ const intents = [
   GatewayIntentBits.GuildPresences,
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildMessageReactions,
+  GatewayIntentBits.DirectMessages,
   GatewayIntentBits.MessageContent,
 ];
 const partials = [Partials.Message, Partials.Channel, Partials.Reaction];
@@ -51,6 +53,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     modalHandler(interaction);
   }
   ticketHandler(interaction);
+  applicationHandler(interaction);
 });
 
 client.on(Events.MessageCreate, async (message) => {
