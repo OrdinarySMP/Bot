@@ -11,15 +11,10 @@ import {
   addRole,
   getCommands,
   deployCommands,
-  getModals,
   Logger,
   loadTickets,
 } from './utils/index.js';
-import {
-  modalHandler,
-  commandsHandler,
-  autocompleteHandler,
-} from './events/interaction.js';
+import { commandsHandler, autocompleteHandler } from './events/interaction.js';
 import {
   ticketHandler,
   ticketMessageCreateHandler,
@@ -40,15 +35,12 @@ const partials = [Partials.Message, Partials.Channel, Partials.Reaction];
 
 const client = new Client({ intents, partials });
 client.commands = await getCommands();
-client.modals = await getModals();
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isChatInputCommand()) {
     commandsHandler(interaction);
   } else if (interaction.isAutocomplete()) {
     autocompleteHandler(interaction);
-  } else if (interaction.isModalSubmit()) {
-    modalHandler(interaction);
   }
   ticketHandler(interaction);
 });

@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { execute, autocomplete } from '../../../commands/faq/index.js';
+import { execute, autocomplete } from '../../commands/faq.js';
 import fetch from 'node-fetch';
 
 const interaction = {

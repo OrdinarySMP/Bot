@@ -1,15 +1,14 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import Logger from '../../utils/logger.js';
-import { apiFetch } from '../../utils/apiFetch.js';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import Logger from '../utils/logger.js';
+import { apiFetch } from '../utils/apiFetch.js';
 
 export const data = new SlashCommandBuilder()
-  .setName('rule-remove')
-  .setDescription('Remove a frequently asked question')
-  .setDefaultMemberPermissions(PermissionFlagsBits.ViewAuditLog)
+  .setName('rule')
+  .setDescription('Displays a rule')
   .addStringOption((option) =>
     option
       .setName('rule')
-      .setDescription('The rule category')
+      .setDescription('The rule to display')
       .setRequired(true)
       .setAutocomplete(true)
   );
@@ -36,23 +35,31 @@ export const execute = async (interaction) => {
   const ruleId = interaction.options.getString('rule');
 
   try {
-    const response = await apiFetch(`/rule/${ruleId}`, {
-      method: 'DELETE',
+    const response = await apiFetch('/rule', {
+      method: 'GET',
+      query: {
+        'filter[id]': ruleId,
+      },
     });
-    const result = await response.text();
+    const ruleResponse = await response.json();
+    const requestedRule = ruleResponse?.data?.[0];
 
-    if (result === 0) {
+    if (!requestedRule) {
       await interaction.reply({
-        content: 'The rule was not found.',
+        content:
+          'The rule was not found please try again later. If this error persists, please report to the staff team.',
         ephemeral: true,
       });
-
       return;
     }
 
+    const embed = new EmbedBuilder()
+      .setColor('#f0833a')
+      .setTitle(`${requestedRule.number}. ${requestedRule.name}`)
+      .setDescription(requestedRule.rule);
+
     await interaction.reply({
-      content: 'The rule has been removed.',
-      ephemeral: true,
+      embeds: [embed],
     });
   } catch (e) {
     Logger.error(e);
