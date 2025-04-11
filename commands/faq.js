@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import Logger from '../../utils/logger.js';
-import { apiFetch } from '../../utils/apiFetch.js';
+import Logger from '../utils/logger.js';
+import { apiFetch } from '../utils/apiFetch.js';
 
 export const data = new SlashCommandBuilder()
   .setName('faq')

@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { execute, autocomplete } from '../../../commands/faq/remove.js';
+import { execute, autocomplete } from '../../commands/rule.js';
 import fetch from 'node-fetch';
 
 const interaction = {
@@ -18,18 +18,19 @@ fetch.mockReturnValue(
       Promise.resolve({
         data: [
           {
-            id: 1,
-            question: 'Test',
-            answer: 'Testing',
+            id: 2,
+            number: 1,
+            name: 'Abc',
+            rule: 'Def',
           },
           {
-            id: 2,
-            question: 'Abc',
-            answer: 'Def',
+            id: 1,
+            number: 2,
+            name: 'Test',
+            rule: 'Testing',
           },
         ],
       }),
-    text: () => Promise.resolve(1),
   })
 );
 
@@ -38,32 +39,42 @@ it('can retrive autocomplete', async () => {
   await autocomplete(interaction);
 
   expect(interaction.respond).toBeCalledWith([
-    { name: 'Test', value: '1' },
-    { name: 'Abc', value: '2' },
+    { name: '1. Abc', value: '2' },
+    { name: '2. Test', value: '1' },
   ]);
 });
 
 it('can execute', async () => {
-  interaction.options.getString.mockReturnValue('1');
+  interaction.options.getString.mockReturnValue('2');
   await execute(interaction);
 
   expect(interaction.reply).toBeCalledWith({
-    content: 'The FAQ has been removed.',
-    ephemeral: true,
+    embeds: [
+      {
+        data: {
+          color: 15762234,
+          description: 'Def',
+          title: '1. Abc',
+        },
+      },
+    ],
   });
 });
 
-it('returns error if faq is not found', async () => {
+it('return error if rule is not found', async () => {
   fetch.mockReturnValue(
     Promise.resolve({
-      text: () => Promise.resolve(0),
+      json: () =>
+        Promise.resolve({
+          data: [],
+        }),
     })
   );
-  interaction.options.getString.mockReturnValue('0');
   await execute(interaction);
 
   expect(interaction.reply).toBeCalledWith({
-    content: 'The FAQ was not found.',
+    content:
+      'The rule was not found please try again later. If this error persists, please report to the staff team.',
     ephemeral: true,
   });
 });
