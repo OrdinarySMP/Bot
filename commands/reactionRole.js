@@ -102,7 +102,7 @@ const addReactionRole = async (interaction) => {
   } catch (e) {
     Logger.error(e);
     await interaction.reply({
-      content: `An error occurred while creating the FAQ entry. Please try again later. If this error persists, please report to the staff team.`,
+      content: `An error occurred while creating the reaction role entry. Please try again later. If this error persists, please report to the staff team.`,
       ephemeral: true,
     });
   }
@@ -116,17 +116,22 @@ const listReactionRole = async (interaction) => {
     },
   });
   const reactionRoles = await response.json();
+  if (!reactionRoles || !reactionRoles.data) {
+    Logger.error(`Could not load reaction roles: ${reactionRoles}`);
+    await interaction.reply({
+      content: `An error occurred while fetching the reaction roles. Please try again later. If this error persists, please report to the staff team.`,
+      ephemeral: true,
+    });
+  }
 
   const rolesOrderedByMessage = {};
   const embeds = [];
-  for (const role of reactionRoles) {
+  for (const role of reactionRoles.data) {
     if (!rolesOrderedByMessage[role.message_id]) {
       let channel;
       let message;
       try {
-        channel = await interaction.guild.channels.cache.find(
-          (channel) => `${role.channel_id}` === `${channel.id}`
-        );
+        channel = await interaction.guild.channels.fetch(role.channel_id);
         message = await channel.messages.fetch(role.message_id);
       } catch (e) {
         // Unknown message || Unknown channel
