@@ -8,7 +8,13 @@ export const handleReactionRole = async (reaction, user, type) => {
     return;
   }
 
-  const member = await reaction.message.guild.members.fetch(user.id);
+  let member = undefined;
+  try {
+    member = await reaction.message.guild.members.fetch(user.id);
+  } catch (error) {
+    Logger.error(`Could not get member: ${error}`);
+    return;
+  }
   const emoji = reaction.emoji.toString();
 
   const response = await apiFetch('/reaction-role', {
