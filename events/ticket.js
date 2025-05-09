@@ -10,42 +10,53 @@ import {
 import { apiFetch } from '../utils/apiFetch.js';
 import ticketState from '../states/TicketState.js';
 import { replaceUser, replaceChannel } from '../utils/mentions.js';
+import { replyError } from '../utils/replyError.js';
 import Logger from '../utils/logger.js';
 
 export const ticketHandler = async (interaction) => {
   if (interaction.isModalSubmit()) {
-    const modalMatch = interaction.customId.match(
-      /^ticket-([0-9]+)-close-with-reason$/
-    );
-    if (!modalMatch) {
-      return;
-    }
-    const ticketId = modalMatch[1]; // id
-
-    await interaction.reply({
-      content: 'this ticket will be closed.',
-      ephemeral: true,
-    });
-    const reason = interaction.fields.getTextInputValue('reason');
-    const response = await apiFetch(`/ticket/${ticketId}/close`, {
-      method: 'POST',
-      body: {
-        closed_by_discord_user_id: interaction.user.id,
-        closed_reason: reason,
-      },
-    });
-
-    if (!response.ok) {
-      Logger.error(
-        `Could not close ticket ${ticketId} with reason: ${await response.text()}`
+    try {
+      const modalMatch = interaction.customId.match(
+        /^ticket-([0-9]+)-close-with-reason$/
       );
-      await interaction.editReply({
-        content:
-          'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team',
+      if (!modalMatch) {
+        return;
+      }
+      const ticketId = modalMatch[1]; // id
+
+      await interaction.reply({
+        content: 'this ticket will be closed.',
         ephemeral: true,
       });
-    } else {
-      ticketState.removeChannelId(interaction.channelId);
+      const reason = interaction.fields.getTextInputValue('reason');
+      const response = await apiFetch(`/ticket/${ticketId}/close`, {
+        method: 'POST',
+        body: {
+          closed_by_discord_user_id: interaction.user.id,
+          closed_reason: reason,
+        },
+      });
+
+      if (!response.ok) {
+        Logger.error(
+          `Could not close ticket ${ticketId} with reason: ${await response.text()}`
+        );
+        await interaction.editReply({
+          content:
+            'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team',
+          ephemeral: true,
+        });
+      } else {
+        ticketState.removeChannelId(interaction.channelId);
+      }
+    } catch (error) {
+      Logger.error(
+        `An error occurred while closing a ticket with reason: ${error}`
+      );
+      await replyError(
+        interaction,
+        'An error occurred while creating your ticket. Please try again later. If this error persists, please report to the staff team.'
+      );
     }
   }
 
@@ -68,11 +79,8 @@ export const ticketHandler = async (interaction) => {
         });
         const ticket = await response.json();
         if (response.ok) {
-          await ticketState.addChannelId(
-            `${ticket.data.id}`,
-            ticket.data.channel_id
-          );
-          interaction.reply({
+          ticketState.addChannelId(`${ticket.data.id}`, ticket.data.channel_id);
+          await interaction.reply({
             content: `Your ticket has been created: <#${ticket.data.channel_id}>.`,
             ephemeral: true,
           });
@@ -80,19 +88,17 @@ export const ticketHandler = async (interaction) => {
           Logger.error(
             `An API error occurred while creating a ticket: ${await response.text()}`
           );
-          await interaction.reply({
-            content:
-              'An error occurred while creating your ticket. Please try again later. If this error persists, please report to the staff team.',
-            ephemeral: true,
-          });
+          await replyError(
+            interaction,
+            'An error occurred while creating your ticket. Please try again later. If this error persists, please report to the staff team.'
+          );
         }
       } catch (error) {
         Logger.error(`An error occurred while creating a ticket: ${error}`);
-        interaction.reply({
-          content:
-            'An error occurred while creating your ticket. Please try again later. If this error persists, please report to the staff team.',
-          ephemeral: true,
-        });
+        await replyError(
+          interaction,
+          'An error occurred while creating your ticket. Please try again later. If this error persists, please report to the staff team.'
+        );
       }
     }
 
@@ -116,16 +122,15 @@ export const ticketHandler = async (interaction) => {
         Logger.error(
           `An error occurred while sending close confirmation for ticket ${id}: ${error}`
         );
-        await interaction.editReply({
-          content:
-            'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team',
-          ephemeral: true,
-        });
+        await replyError(
+          interaction,
+          'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team.'
+        );
       }
     }
 
     if (action === 'closeConfirm') {
-      // close existing ticket
+      // confirm close existing ticket
       try {
         await interaction.reply({
           content: 'This ticket will be closed.',
@@ -151,30 +156,40 @@ export const ticketHandler = async (interaction) => {
         Logger.error(
           `An error occurred while closing the ticket ${id}: ${error}`
         );
-        await interaction.editReply({
-          content:
-            'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team',
-          ephemeral: true,
-        });
+        await replyError(
+          interaction,
+          'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team.'
+        );
       }
     }
 
     if (action === 'closeWithReason') {
       // close existing ticket with reason
+      try {
+        const modal = new ModalBuilder()
+          .setCustomId(`ticket-${id}-close-with-reason`)
+          .setTitle('Close ticket with reason');
 
-      const modal = new ModalBuilder()
-        .setCustomId(`ticket-${id}-close-with-reason`)
-        .setTitle('Close ticket with reason');
+        const reasonInput = new TextInputBuilder()
+          .setCustomId('reason')
+          .setLabel('Reason:')
+          .setStyle(TextInputStyle.Paragraph);
 
-      const reasonInput = new TextInputBuilder()
-        .setCustomId('reason')
-        .setLabel('Reason:')
-        .setStyle(TextInputStyle.Paragraph);
+        const answerActionRow = new ActionRowBuilder().addComponents(
+          reasonInput
+        );
 
-      const answerActionRow = new ActionRowBuilder().addComponents(reasonInput);
-
-      modal.addComponents(answerActionRow);
-      await interaction.showModal(modal);
+        modal.addComponents(answerActionRow);
+        await interaction.showModal(modal);
+      } catch (error) {
+        Logger.error(
+          `An error occurred while creating the close ticket with reason modal: ${error}`
+        );
+        await replyError(
+          interaction,
+          'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team.'
+        );
+      }
     }
   }
 };

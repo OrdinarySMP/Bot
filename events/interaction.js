@@ -1,4 +1,5 @@
 import Logger from '../utils/logger.js';
+import { replyError } from '../utils/replyError.js';
 
 export const autocompleteHandler = async (interaction) => {
   const command = interaction.client.commands.get(interaction.commandName);
@@ -27,16 +28,6 @@ export const commandsHandler = async (interaction) => {
     await command.execute(interaction);
   } catch (error) {
     Logger.error(error);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      });
-    } else {
-      await interaction.reply({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      });
-    }
+    replyError(interaction, 'There was an error while executing this command!');
   }
 };
