@@ -27,7 +27,7 @@ export const execute = async (interaction) => {
   }
   const ticketId = ticketState.getChannelIds()[interaction.channelId];
   try {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply();
     const response = await apiFetch('/ticket', {
       method: 'GET',
       query: {
