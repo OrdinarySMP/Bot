@@ -70,6 +70,7 @@ export const ticketHandler = async (interaction) => {
 
     if (action === 'create') {
       try {
+        await interaction.deferReply({ ephemeral: true });
         const response = await apiFetch('/ticket', {
           method: 'POST',
           body: {
@@ -80,7 +81,7 @@ export const ticketHandler = async (interaction) => {
         const ticket = await response.json();
         if (response.ok) {
           ticketState.addChannelId(`${ticket.data.id}`, ticket.data.channel_id);
-          await interaction.reply({
+          await interaction.editReply({
             content: `Your ticket has been created: <#${ticket.data.channel_id}>.`,
             ephemeral: true,
           });
@@ -105,6 +106,7 @@ export const ticketHandler = async (interaction) => {
     if (action === 'close') {
       // close existing ticket
       try {
+        await interaction.deferReply({ ephemeral: true });
         const confirm = new ButtonBuilder()
           .setCustomId(`ticket-closeConfirm-${id}`)
           .setLabel('Confirm')
@@ -114,7 +116,7 @@ export const ticketHandler = async (interaction) => {
           .setColor('#f0833a')
           .setTitle('Close ticket')
           .setDescription('Do you want to close this ticket?');
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [embed],
           components: [row],
         });
@@ -132,7 +134,8 @@ export const ticketHandler = async (interaction) => {
     if (action === 'closeConfirm') {
       // confirm close existing ticket
       try {
-        await interaction.reply({
+        await interaction.deferReply({ ephemeral: true });
+        await interaction.editReply({
           content: 'This ticket will be closed.',
           ephemeral: true,
         });

@@ -18,7 +18,9 @@ const interaction = {
       delete: vi.fn(),
     },
   },
+  deferReply: vi.fn(),
   reply: vi.fn(),
+  editReply: vi.fn(),
   member: {
     roles: {
       cache: {
@@ -65,7 +67,7 @@ it('can execute', async () => {
 
   expect(interaction.channel.permissionOverwrites.delete).toBeCalledWith(user);
 
-  expect(interaction.reply).toBeCalledWith({
+  expect(interaction.editReply).toBeCalledWith({
     embeds: [
       {
         data: {

@@ -23,7 +23,9 @@ const interaction = {
       edit: vi.fn(),
     },
   },
+  deferReply: vi.fn(),
   reply: vi.fn(),
+  editReply: vi.fn(),
   member: {
     roles: {
       cache: {
@@ -73,7 +75,7 @@ it('can execute', async () => {
     ViewChannel: true,
   });
 
-  expect(interaction.reply).toBeCalledWith({
+  expect(interaction.editReply).toBeCalledWith({
     embeds: [
       {
         data: {
