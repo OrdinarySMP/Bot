@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import ticketState from '../../states/TicketState.js';
 import Logger from '../../utils/logger.js';
 import { apiFetch } from '../../utils/apiFetch.js';
+import { replyError } from '../../utils/replyError.js';
 
 export const data = new SlashCommandBuilder()
   .setName('ticket-remove')
@@ -26,6 +27,7 @@ export const execute = async (interaction) => {
   }
   const ticketId = ticketState.getChannelIds()[interaction.channelId];
   try {
+    await interaction.deferReply({ ephemeral: true });
     const response = await apiFetch('/ticket', {
       method: 'GET',
       query: {
@@ -42,17 +44,16 @@ export const execute = async (interaction) => {
       ticketTeamRoleIds.includes(role.id)
     );
     if (!hasRole) {
-      await interaction.reply({
-        content:
-          'You dont have the permission to remove a user from this ticket.',
-        ephemeral: true,
-      });
+      await replyError(
+        interaction,
+        'You dont have the permission to remove a user from this ticket.'
+      );
       return;
     }
 
     await interaction.channel.permissionOverwrites.delete(user);
 
-    await interaction.reply({
+    await interaction.editReply({
       embeds: [
         new EmbedBuilder()
           .setColor('#f0833a')
@@ -65,10 +66,9 @@ export const execute = async (interaction) => {
   } catch (error) {
     Logger.error(`Could not remove user from ticket: ${error}`);
 
-    await interaction.reply({
-      content:
-        'Could not remove user from this ticket. Please try again later. If this error persists, please report to the staff team.',
-      ephemeral: true,
-    });
+    await replyError(
+      interaction,
+      'Could not remove user from this ticket. Please try again later. If this error persists, please report to the staff team.'
+    );
   }
 };
