@@ -7,7 +7,7 @@ import {
 import {
   acceptApplicationSubmission,
   denyApplicationSubmission,
-} from '../commands/applyRequests.js';
+} from '../commands/utils/apply/requests.js';
 
 export const applicationHandler = async (interaction) => {
   if (interaction.isModalSubmit()) {

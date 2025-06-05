@@ -1,4 +1,4 @@
-import { apiFetch } from '../utils/apiFetch.js';
+import { apiFetch } from '../../../utils/apiFetch.js';
 import dayjs from 'dayjs';
 
 export const getApplicationById = async (applicationId) => {

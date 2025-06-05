@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
-import { chunkText } from '../utils/chunkText.js';
+import { chunkText } from '../../../utils/chunkText.js';
 import dayjs from 'dayjs';
 
 export const closedDmEmbed = new EmbedBuilder()
