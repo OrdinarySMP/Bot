@@ -13,6 +13,7 @@ import {
 import { loadMessage } from '../utils/loadMessage.js';
 import Paginate from '../commands/utils/paginate.js';
 import dayjs from 'dayjs';
+import { handleApplication } from '../commands/utils/apply/index.js';
 
 export const applicationHandler = async (interaction) => {
   if (interaction.isModalSubmit()) {
@@ -110,6 +111,10 @@ const handleButtons = async (interaction) => {
 
     modal.addComponents(answerActionRow);
     await interaction.showModal(modal);
+  }
+
+  if (action === 'start') {
+    handleApplication(interaction, id);
   }
 
   if (action === 'history') {
