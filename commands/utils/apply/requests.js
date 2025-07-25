@@ -138,6 +138,21 @@ export const denyApplicationSubmission = async (
   }
 };
 
+export const cancelApplicationSubmission = async (applicationSubmissionid) => {
+  const response = await apiFetch(
+    `/application-submission/${applicationSubmissionid}`,
+    {
+      method: 'PUT',
+      body: {
+        state: 4,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to submit application: ${await response.text()}`);
+  }
+};
+
 export const getApplicationSubmissionHistory = async (
   applicationSubmissionid
 ) => {
