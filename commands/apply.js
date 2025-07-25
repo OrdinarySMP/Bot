@@ -11,6 +11,7 @@ import {
   getApplicationQuestions,
   submitApplicationSubmission,
   getApplicationById,
+  cancelApplicationSubmission,
 } from './utils/apply/requests.js';
 import { apiFetch } from '../utils/apiFetch.js';
 
@@ -193,6 +194,7 @@ const handleQuestionAnswer = async (
         'You did not provide an answer within the time limit. The application process has been cancelled.'
       )
       .setColor('#ce361e');
+    cancelApplicationSubmission(applicationSubmissionId);
     await channel.send({
       embeds: [embed],
     });
