@@ -6,7 +6,7 @@ export const getApplicationById = async (applicationId) => {
     method: 'GET',
     query: {
       'filter[id]': applicationId,
-      include: 'restrictedRoles',
+      include: 'restrictedRoles,requiredRoles',
     },
   });
   if (!response.ok) {
@@ -138,17 +138,30 @@ export const denyApplicationSubmission = async (
   }
 };
 
-export const getAllApplicationSubmissions = async (
-  applicationId,
-  discordId
+export const cancelApplicationSubmission = async (applicationSubmissionid) => {
+  const response = await apiFetch(
+    `/application-submission/${applicationSubmissionid}`,
+    {
+      method: 'PUT',
+      body: {
+        state: 4,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to submit application: ${await response.text()}`);
+  }
+};
+
+export const getApplicationSubmissionHistory = async (
+  applicationSubmissionid
 ) => {
-  const response = await apiFetch('/application-submission', {
-    method: 'GET',
-    query: {
-      'filter[application_id]': applicationId,
-      'filter[discord_id]': discordId,
-    },
-  });
+  const response = await apiFetch(
+    `/application-submission/${applicationSubmissionid}/history`,
+    {
+      method: 'GET',
+    }
+  );
   if (!response.ok) {
     throw new Error(
       `Failed to retrieve users applications: ${await response.text()}`
