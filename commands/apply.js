@@ -99,14 +99,15 @@ export const execute = async (interaction) => {
 
     const confirmed = await confirmActionDm(
       channel,
+      "Your Application for `" + application.name + "`",
       application.confirmation_message,
       'Yes',
       `Thank you for applying.\nYour application process for \`${application.name}\` has started.`,
+      "Application cancelled",
       originalMessage
     );
 
     if (!confirmed) {
-      await channel.send('Application process cancelled');
       return;
     }
 

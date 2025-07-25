@@ -7,9 +7,11 @@ import {
 
 export const confirmActionDm = async (
   channel,
+  title,
   confirmMessage,
   confirmLabel,
   confirmationMessage,
+  cancelMessage = "Action cancelled",
   originalMessage = null
 ) => {
   const confirm = new ButtonBuilder()
@@ -25,7 +27,7 @@ export const confirmActionDm = async (
   const row = new ActionRowBuilder().addComponents(confirm, cancel);
 
   const embed = new EmbedBuilder()
-    .setTitle(`Your Application`)
+    .setTitle(title)
     .setDescription(confirmMessage)
     .setColor('#f0833a');
 
@@ -55,7 +57,8 @@ export const confirmActionDm = async (
       });
       return true;
     } else if (confirmation.customId === 'cancel') {
-      embed.setDescription('Action cancelled');
+      embed.setDescription(cancelMessage)
+        .setColor('#ce361e');
       await confirmation.update({
         embeds: [embed],
         components: [],
@@ -63,8 +66,12 @@ export const confirmActionDm = async (
       return false;
     }
   } catch {
+    const embed = new EmbedBuilder()
+      .setTitle(title)
+      .setDescription('Confirmation not received within 1 minute, cancelling')
+      .setColor('#ce361e');
     await response.edit({
-      content: 'Confirmation not received within 1 minute, cancelling',
+      embeds: [embed],
       components: [],
     });
     return false;
