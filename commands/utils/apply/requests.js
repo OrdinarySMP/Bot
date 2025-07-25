@@ -6,7 +6,7 @@ export const getApplicationById = async (applicationId) => {
     method: 'GET',
     query: {
       'filter[id]': applicationId,
-      include: 'restrictedRoles',
+      include: 'restrictedRoles,requiredRoles',
     },
   });
   if (!response.ok) {
