@@ -11,7 +11,7 @@ export const confirmActionDm = async (
   confirmMessage,
   confirmLabel,
   confirmationMessage,
-  cancelMessage = "Action cancelled",
+  cancelMessage = 'Action cancelled',
   originalMessage = null
 ) => {
   const confirm = new ButtonBuilder()
@@ -57,8 +57,7 @@ export const confirmActionDm = async (
       });
       return true;
     } else if (confirmation.customId === 'cancel') {
-      embed.setDescription(cancelMessage)
-        .setColor('#ce361e');
+      embed.setDescription(cancelMessage).setColor('#ce361e');
       await confirmation.update({
         embeds: [embed],
         components: [],
