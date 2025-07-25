@@ -138,17 +138,15 @@ export const denyApplicationSubmission = async (
   }
 };
 
-export const getAllApplicationSubmissions = async (
-  applicationId,
-  discordId
+export const getApplicationSubmissionHistory = async (
+  applicationSubmissionid
 ) => {
-  const response = await apiFetch('/application-submission', {
-    method: 'GET',
-    query: {
-      'filter[application_id]': applicationId,
-      'filter[discord_id]': discordId,
-    },
-  });
+  const response = await apiFetch(
+    `/application-submission/${applicationSubmissionid}/history`,
+    {
+      method: 'GET',
+    }
+  );
   if (!response.ok) {
     throw new Error(
       `Failed to retrieve users applications: ${await response.text()}`

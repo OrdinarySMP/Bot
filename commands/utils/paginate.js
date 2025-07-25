@@ -36,10 +36,17 @@ export default class Paginate {
 
   async paginate() {
     if (this.#embeds.length === 0) {
-      this.#interaction.reply({
-        content: 'No data found!',
-        ephemeral: true,
-      });
+      if (this.#interaction.replied || this.#interaction.deferred) {
+        this.#interaction.editReply({
+          content: 'No data found!',
+          ephemeral: true,
+        });
+      } else {
+        this.#interaction.reply({
+          content: 'No data found!',
+          ephemeral: true,
+        });
+      }
       return this;
     }
     const message = await this.#render();
