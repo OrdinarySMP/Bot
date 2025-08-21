@@ -13,6 +13,7 @@ import {
 
 export const handleApplication = async (interaction, applicationId) => {
   const member = interaction.member;
+  await interaction.deferReply({ ephemeral: true });
   const application = await getApplicationById(applicationId);
   if (!application) {
     await interaction.reply({
@@ -58,7 +59,7 @@ export const handleApplication = async (interaction, applicationId) => {
     return;
   }
   try {
-    await interaction.reply({
+    await interaction.editReply({
       embeds: [applicationStartedDmEmbed],
       ephemeral: true,
     });
