@@ -16,7 +16,7 @@ export const handleApplication = async (interaction, applicationId) => {
   await interaction.deferReply({ ephemeral: true });
   const application = await getApplicationById(applicationId);
   if (!application) {
-    await interaction.reply({
+    await interaction.editReply({
       content:
         'The application was not found. Please use the autocomplete. If this issue pressists contact the staff team.',
       ephemeral: true,
@@ -26,7 +26,7 @@ export const handleApplication = async (interaction, applicationId) => {
 
   for (const restrictedRole of application.restricted_roles) {
     if (member.roles.cache.has(restrictedRole.role_id)) {
-      await interaction.reply({
+      await interaction.editReply({
         content: 'You do not have the permission to execute that command.',
         ephemeral: true,
       });
@@ -36,7 +36,7 @@ export const handleApplication = async (interaction, applicationId) => {
 
   for (const requiredRole of application.required_roles) {
     if (!member.roles.cache.has(requiredRole.role_id)) {
-      await interaction.reply({
+      await interaction.editReply({
         content: 'You do not have the permission to execute that command.',
         ephemeral: true,
       });
@@ -52,7 +52,7 @@ export const handleApplication = async (interaction, applicationId) => {
     );
   } catch (e) {
     Logger.error('cannot send direct message: ' + e);
-    await interaction.reply({
+    await interaction.editReply({
       embeds: [closedDmEmbed],
       ephemeral: true,
     });
