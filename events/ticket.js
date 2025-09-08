@@ -107,6 +107,15 @@ export const ticketHandler = async (interaction) => {
       // close existing ticket
       try {
         await interaction.deferReply({ ephemeral: true });
+
+        if (!(await canCloseTicket(interaction, id))) {
+          await replyError(
+            interaction,
+            'You dont have the permission to close this ticket.'
+          );
+          return;
+        }
+
         const confirm = new ButtonBuilder()
           .setCustomId(`ticket-closeConfirm-${id}`)
           .setLabel('Confirm')
@@ -169,6 +178,14 @@ export const ticketHandler = async (interaction) => {
     if (action === 'closeWithReason') {
       // close existing ticket with reason
       try {
+        if (!(await canCloseTicket(interaction, id))) {
+          await replyError(
+            interaction,
+            'You dont have the permission to close this ticket.'
+          );
+          return;
+        }
+
         const modal = new ModalBuilder()
           .setCustomId(`ticket-${id}-close-with-reason`)
           .setTitle('Close ticket with reason');
@@ -261,4 +278,26 @@ const addTranscript = async (message) => {
       Logger.error(`Could not add transcript: ${error}`);
     }
   }
+};
+
+const canCloseTicket = async (interaction, ticketId) => {
+  const response = await apiFetch('/ticket', {
+    method: 'GET',
+    query: {
+      'filter[id]': ticketId,
+      include: 'ticketButton.ticketTeam.ticketTeamRoles',
+    },
+  });
+  const ticket = await response.json();
+  const createdById = ticket.data[0].created_by_discord_user_id;
+  const ticketTeamRoleIds =
+    ticket.data[0].ticket_button.ticket_team.ticket_team_roles.map(
+      (ticketTeamRole) => ticketTeamRole.role_id
+    );
+
+  const hasRole = interaction.member.roles.cache.some((role) =>
+    ticketTeamRoleIds.includes(role.id)
+  );
+
+  return createdById === interaction.user.id || hasRole;
 };
