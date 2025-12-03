@@ -6,6 +6,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
+  MessageFlags,
 } from 'discord.js';
 import { apiFetch } from '../utils/apiFetch.js';
 import ticketState from '../states/TicketState.js';
@@ -26,7 +27,7 @@ export const ticketHandler = async (interaction) => {
 
       await interaction.reply({
         content: 'this ticket will be closed.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       const reason = interaction.fields.getTextInputValue('reason');
       const response = await apiFetch(`/ticket/${ticketId}/close`, {
@@ -44,7 +45,7 @@ export const ticketHandler = async (interaction) => {
         await interaction.editReply({
           content:
             'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       } else {
         ticketState.removeChannelId(interaction.channelId);
@@ -70,7 +71,7 @@ export const ticketHandler = async (interaction) => {
 
     if (action === 'create') {
       try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const response = await apiFetch('/ticket', {
           method: 'POST',
           body: {
@@ -83,7 +84,7 @@ export const ticketHandler = async (interaction) => {
           ticketState.addChannelId(`${ticket.data.id}`, ticket.data.channel_id);
           await interaction.editReply({
             content: `Your ticket has been created: <#${ticket.data.channel_id}>.`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         } else {
           Logger.error(
@@ -106,7 +107,7 @@ export const ticketHandler = async (interaction) => {
     if (action === 'close') {
       // close existing ticket
       try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         if (!(await canCloseTicket(interaction, id))) {
           await replyError(
@@ -143,10 +144,10 @@ export const ticketHandler = async (interaction) => {
     if (action === 'closeConfirm') {
       // confirm close existing ticket
       try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         await interaction.editReply({
           content: 'This ticket will be closed.',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         const response = await apiFetch(`/ticket/${id}/close`, {
           method: 'POST',
@@ -159,7 +160,7 @@ export const ticketHandler = async (interaction) => {
           await interaction.editReply({
             content:
               'An error occurred while closing this ticket. Please try again later. If this error persists, please report to the staff team',
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         } else {
           ticketState.removeChannelId(interaction.channelId);

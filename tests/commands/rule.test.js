@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest';
 import { execute, autocomplete } from '../../commands/rule.js';
 import fetch from 'node-fetch';
+import { MessageFlags } from 'discord.js';
 
 const interaction = {
   options: {
@@ -75,6 +76,6 @@ it('return error if rule is not found', async () => {
   expect(interaction.reply).toBeCalledWith({
     content:
       'The rule was not found please try again later. If this error persists, please report to the staff team.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });

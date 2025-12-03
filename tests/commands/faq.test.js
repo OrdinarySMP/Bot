@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest';
 import { execute, autocomplete } from '../../commands/faq.js';
 import fetch from 'node-fetch';
+import { MessageFlags } from 'discord.js';
 
 const interaction = {
   options: {
@@ -73,6 +74,6 @@ it('returns error if faq is not found', async () => {
   expect(interaction.reply).toBeCalledWith({
     content:
       'The question was not found. Please try again later. If this error persists, please report to the staff team.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });

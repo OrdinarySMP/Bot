@@ -1,4 +1,8 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import {
+  MessageFlags,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from 'discord.js';
 import { confirmAction } from './utils/confirmAction.js';
 import { hasPermission } from './utils/hasPermission.js';
 import {
@@ -82,7 +86,7 @@ const previewPurge = async (interaction) => {
 
   await interaction.reply({
     embeds: [embed],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 };
 

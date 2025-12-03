@@ -9,14 +9,18 @@ const rolesMock = [
 ];
 
 vi.mock('discord.js', () => {
-  const mockEmbedBuilder = {
-    setColor: vi.fn().mockReturnThis(),
-    setTitle: vi.fn().mockReturnThis(),
-    setDescription: vi.fn().mockReturnThis(),
-    addFields: vi.fn().mockReturnThis(),
-    setThumbnail: vi.fn().mockReturnThis(),
-    setTimestamp: vi.fn().mockReturnThis(),
-  };
+  class MockEmbedBuilder {
+    setColor = vi.fn().mockReturnThis();
+    setTitle = vi.fn().mockReturnThis();
+    setDescription = vi.fn().mockReturnThis();
+    addFields = vi.fn().mockReturnThis();
+    setThumbnail = vi.fn().mockReturnThis();
+    setTimestamp = vi.fn().mockReturnThis();
+  }
+
+  const EmbedBuilderMock = vi.fn(function () {
+    return new MockEmbedBuilder();
+  });
 
   const Role = class {
     constructor(id, name, hexColor) {
@@ -44,7 +48,7 @@ vi.mock('discord.js', () => {
   };
 
   return {
-    EmbedBuilder: vi.fn(() => mockEmbedBuilder),
+    EmbedBuilder: EmbedBuilderMock,
     Role,
     Collection,
   };

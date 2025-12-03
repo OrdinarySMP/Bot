@@ -10,15 +10,32 @@ import {
 import { removeRole } from '../../../utils/roles.js';
 
 vi.mock('discord.js', () => {
-  const mockEmbedBuilder = {
-    setColor: vi.fn().mockReturnThis(),
-    setTitle: vi.fn().mockReturnThis(),
-    setDescription: vi.fn().mockReturnThis(),
-    addFields: vi.fn().mockReturnThis(),
-    setThumbnail: vi.fn().mockReturnThis(),
-    setTimestamp: vi.fn().mockReturnThis(),
-    setFields: vi.fn().mockReturnThis(),
+  class MockEmbedBuilder {
+    setTitle = vi.fn().mockReturnThis();
+    setColor = vi.fn().mockReturnThis();
+    setDescription = vi.fn().mockReturnThis();
+    setTimestamp = vi.fn().mockReturnThis();
+    setFields = vi.fn().mockReturnThis();
+  }
+
+  const EmbedBuilderMock = vi.fn(function () {
+    return new MockEmbedBuilder();
+  });
+
+  return {
+    EmbedBuilder: EmbedBuilderMock,
   };
+});
+vi.mock('discord.js', () => {
+  class MockEmbedBuilder {
+    setColor = vi.fn().mockReturnThis();
+    setTitle = vi.fn().mockReturnThis();
+    setDescription = vi.fn().mockReturnThis();
+    addFields = vi.fn().mockReturnThis();
+    setThumbnail = vi.fn().mockReturnThis();
+    setTimestamp = vi.fn().mockReturnThis();
+    setFields = vi.fn().mockReturnThis();
+  }
 
   const Role = class {
     constructor(id, name, hexColor) {
@@ -45,8 +62,12 @@ vi.mock('discord.js', () => {
     }
   };
 
+  const EmbedBuilderMock = vi.fn(function () {
+    return new MockEmbedBuilder();
+  });
+
   return {
-    EmbedBuilder: vi.fn(() => mockEmbedBuilder),
+    EmbedBuilder: EmbedBuilderMock,
     Role,
     Collection,
   };

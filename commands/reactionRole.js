@@ -2,6 +2,7 @@ import {
   SlashCommandBuilder,
   PermissionFlagsBits,
   EmbedBuilder,
+  MessageFlags,
 } from 'discord.js';
 import Logger from '../utils/logger.js';
 import Paginate from './utils/paginate.js';
@@ -90,20 +91,20 @@ const addReactionRole = async (interaction) => {
         .join('\n\n');
       await interaction.reply({
         content: errors,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
 
     await interaction.reply({
       content: 'Reaction role was created.',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (e) {
     Logger.error(e);
     await interaction.reply({
       content: `An error occurred while creating the reaction role entry. Please try again later. If this error persists, please report to the staff team.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 };
@@ -120,7 +121,7 @@ const listReactionRole = async (interaction) => {
     Logger.error(`Could not load reaction roles: ${reactionRoles}`);
     await interaction.reply({
       content: `An error occurred while fetching the reaction roles. Please try again later. If this error persists, please report to the staff team.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -147,7 +148,7 @@ const listReactionRole = async (interaction) => {
         await interaction.reply({
           content:
             'An error occoured while fetching the reaction roles. Please try again later. If this error persists, please report to the staff team.',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -193,13 +194,13 @@ const removeReactionRole = async (interaction) => {
 
     await interaction.reply({
       content: 'The reaction role has been removed.',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (e) {
     Logger.error(e);
     await interaction.reply({
       content: `An error occurred while removing the reaction role. Please try again later. If this error persists, please report to the staff team.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 };

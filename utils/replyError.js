@@ -1,13 +1,15 @@
+import { MessageFlags } from 'discord.js';
+
 export const replyError = async (interaction, content) => {
   if (interaction.replied || interaction.deferred) {
     await interaction.followUp({
       content,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } else {
     await interaction.reply({
       content,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 };

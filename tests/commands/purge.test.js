@@ -8,6 +8,7 @@ import {
 } from '../../commands/utils/purge.js';
 import { confirmAction } from '../../commands/utils/confirmAction.js';
 import { hasPermission } from '../../commands/utils/hasPermission.js';
+import { MessageFlags } from 'discord.js';
 
 vi.mock('../../commands/utils/purge.js', () => {
   return {
@@ -67,7 +68,7 @@ it('can execute preview', async () => {
   expect(setDescriptionMock).toBeCalledWith('To be purged: 6 members');
   expect(interaction.reply).toBeCalledWith({
     embeds: expect.arrayContaining([]),
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 

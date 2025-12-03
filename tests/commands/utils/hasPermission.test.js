@@ -1,5 +1,6 @@
 import { expect, it, vi } from 'vitest';
 import { hasPermission } from '../../../commands/utils/hasPermission.js';
+import { MessageFlags } from 'discord.js';
 
 const interaction = {
   memberPermissions: {
@@ -24,6 +25,6 @@ it('returns false if permission is missing and sends message', async () => {
   expect(result).toBe(false);
   expect(interaction.reply).toBeCalledWith({
     content: 'insufficient permission',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
