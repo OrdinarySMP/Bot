@@ -3,6 +3,7 @@ import ticketState from '../../states/TicketState.js';
 import Logger from '../../utils/logger.js';
 import { apiFetch } from '../../utils/apiFetch.js';
 import { replyError } from '../../utils/replyError.js';
+import { addRole, removeRole } from '../../utils/roles.js';
 
 export const data = new SlashCommandBuilder()
   .setName('ticket-add')
@@ -12,10 +13,14 @@ export const data = new SlashCommandBuilder()
       .setName('user')
       .setDescription('The user to add to the ticket.')
       .setRequired(true)
+  )
+  .addBooleanOption((option) =>
+    option.setName('restrict').setDescription('Restrict the User')
   );
 
 export const execute = async (interaction) => {
   const user = interaction.options.getUser('user');
+  const shouldRestrict = interaction.options.getBoolean('restrict') ?? false;
   if (
     !Object.keys(ticketState.getChannelIds()).includes(interaction.channelId)
   ) {
@@ -66,6 +71,28 @@ export const execute = async (interaction) => {
           .setDescription(`${user} has been added to ${interaction.channel}`),
       ],
     });
+
+    if (shouldRestrict) {
+      let member;
+      try {
+        member = await interaction.guild.members.fetch(user.id);
+      } catch (error) {
+        Logger.error(`Could not get member for restricting: ${error}`);
+        return;
+      }
+
+      const addedRole = addRole(member, process.env.RESTRICTED_ROLE_ID);
+      const removedRole = removeRole(member, process.env.MEMBER_ROLE_ID);
+
+      let restictMessage = `Could not restrict ${user}.`;
+      if (addedRole && removedRole) {
+        restictMessage = `${user} was restricted.`;
+      }
+      await interaction.followUp({
+        content: restictMessage,
+        ephemeral: true,
+      });
+    }
   } catch (error) {
     Logger.error(`Could not add user to ticket: ${error}`);
     await replyError(
