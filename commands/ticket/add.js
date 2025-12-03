@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import ticketState from '../../states/TicketState.js';
 import Logger from '../../utils/logger.js';
 import { apiFetch } from '../../utils/apiFetch.js';
@@ -26,7 +26,7 @@ export const execute = async (interaction) => {
   ) {
     await interaction.reply({
       content: 'This is not a ticket channel.',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -90,7 +90,7 @@ export const execute = async (interaction) => {
       }
       await interaction.followUp({
         content: restictMessage,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   } catch (error) {

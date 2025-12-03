@@ -1,5 +1,6 @@
 import { it, vi, expect, beforeEach } from 'vitest';
 import Paginate from '../../../commands/utils/paginate.js';
+import { MessageFlags } from 'discord.js';
 
 let mockInteraction;
 let onMock;
@@ -27,7 +28,7 @@ it('should reply with "No data found!" if no embeds are provided', async () => {
 
   expect(mockInteraction.reply).toHaveBeenCalledWith({
     content: 'No data found!',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 
@@ -80,7 +81,7 @@ it('should handle "previous" button interaction correctly', async () => {
     embeds: [mockEmbeds[0]],
     components: expect.any(Array),
     content: '',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 
@@ -112,7 +113,7 @@ it('should handle "next" button interaction correctly', async () => {
     embeds: [mockEmbeds[1]],
     components: expect.any(Array),
     content: '',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 

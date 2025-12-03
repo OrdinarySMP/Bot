@@ -1,3 +1,4 @@
+import { MessageFlags } from 'discord.js';
 import Logger from '../utils/logger.js';
 import { replyError } from '../utils/replyError.js';
 
@@ -53,12 +54,12 @@ export const modalHandler = async (interaction) => {
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
         content: 'There was an error while handling the modal!',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     } else {
       await interaction.reply({
         content: 'There was an error while handling the modal!',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }

@@ -2,6 +2,7 @@ import { expect, it, vi, beforeEach } from 'vitest';
 import { execute } from '../../../commands/ticket/add.js';
 import ticketState from '../../../states/TicketState.js';
 import { apiFetch } from '../../../utils/apiFetch.js';
+import { MessageFlags } from 'discord.js';
 
 const user = {
   id: 123,
@@ -12,6 +13,7 @@ const interaction = {
   channelId: '132123123',
   options: {
     getUser: vi.fn().mockReturnValue(user),
+    getBoolean: vi.fn().mockReturnValue(false),
   },
   channel: {
     send: vi.fn().mockReturnValue(
@@ -45,7 +47,7 @@ it('ignores none ticket channels', async () => {
 
   expect(interaction.reply).toBeCalledWith({
     content: 'This is not a ticket channel.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 

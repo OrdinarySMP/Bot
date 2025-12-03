@@ -1,3 +1,5 @@
+import { MessageFlags } from 'discord.js';
+
 export const hasPermission = async (
   interaction,
   requiredPermissionFlag,
@@ -6,7 +8,7 @@ export const hasPermission = async (
   if (!interaction.memberPermissions.has(requiredPermissionFlag)) {
     await interaction.reply({
       content: message,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return false;
   }

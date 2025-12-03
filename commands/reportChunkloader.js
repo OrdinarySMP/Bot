@@ -3,6 +3,7 @@ import {
   PermissionFlagsBits,
   EmbedBuilder,
   ButtonStyle,
+  MessageFlags,
 } from 'discord.js';
 import { hasPermission } from './utils/hasPermission.js';
 import { confirmAction } from './utils/confirmAction.js';
@@ -150,12 +151,12 @@ export const execute = async (interaction) => {
     await interaction.editReply({
       content:
         'An error occurred while reporting your chunkloader. Please try again later. If this error persists, please report to the staff team.',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
   await interaction.editReply({
     content: 'Thank you for reporting your chunkloader.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 };

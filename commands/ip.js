@@ -1,4 +1,8 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import {
+  SlashCommandBuilder,
+  PermissionFlagsBits,
+  MessageFlags,
+} from 'discord.js';
 import fetch from 'node-fetch';
 
 export const data = new SlashCommandBuilder()
@@ -11,6 +15,6 @@ export const execute = async (interaction) => {
   const ip = await response.text();
   await interaction.reply({
     content: 'Current ip: `' + ip + '`',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 };

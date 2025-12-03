@@ -1,4 +1,9 @@
-import { ButtonBuilder, ButtonStyle, ActionRowBuilder } from 'discord.js';
+import {
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+  MessageFlags,
+} from 'discord.js';
 
 export const confirmAction = async (
   interaction,
@@ -23,7 +28,7 @@ export const confirmAction = async (
     content: confirmMessage,
     components: [row],
     embeds: embeds,
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
   const collectorFilter = (i) => i.user.id === interaction.user.id;
 
@@ -45,7 +50,7 @@ export const confirmAction = async (
         content: 'Action cancelled',
         components: [],
         embeds: [],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return false;
     }

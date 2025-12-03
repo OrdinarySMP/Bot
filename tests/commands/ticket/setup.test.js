@@ -1,4 +1,4 @@
-import { ChannelType, PermissionsBitField } from 'discord.js';
+import { ChannelType, MessageFlags, PermissionsBitField } from 'discord.js';
 import { expect, it, vi, beforeEach } from 'vitest';
 import { execute } from '../../../commands/ticket/setup.js';
 import { apiFetch } from '../../../utils/apiFetch.js';
@@ -45,7 +45,7 @@ it('cancels if already setup', async () => {
 
   expect(interaction.editReply).toBeCalledWith({
     content: 'The setup is completed. Please use the helper panel.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 
@@ -136,6 +136,6 @@ it('can execute', async () => {
 
   expect(interaction.editReply).toBeCalledWith({
     content: 'tickets setup completed.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });

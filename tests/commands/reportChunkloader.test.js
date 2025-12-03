@@ -2,24 +2,28 @@ import { expect, it, vi, beforeEach } from 'vitest';
 import { execute } from '../../commands/reportChunkloader.js';
 import { confirmAction } from '../../commands/utils/confirmAction.js';
 import { hasPermission } from '../../commands/utils/hasPermission.js';
-import { EmbedBuilder } from 'discord.js';
+import { EmbedBuilder, MessageFlags } from 'discord.js';
 
 vi.mock('discord.js', async (importOriginal) => {
   const actual = await importOriginal();
 
-  const mockEmbedBuilder = {
-    setColor: vi.fn().mockReturnThis(),
-    setTitle: vi.fn().mockReturnThis(),
-    setDescription: vi.fn().mockReturnThis(),
-    addFields: vi.fn().mockReturnThis(),
-    setThumbnail: vi.fn().mockReturnThis(),
-    setTimestamp: vi.fn().mockReturnThis(),
-    setFields: vi.fn().mockReturnThis(),
-  };
+  class MockEmbedBuilder {
+    setColor = vi.fn().mockReturnThis();
+    setTitle = vi.fn().mockReturnThis();
+    setDescription = vi.fn().mockReturnThis();
+    addFields = vi.fn().mockReturnThis();
+    setThumbnail = vi.fn().mockReturnThis();
+    setTimestamp = vi.fn().mockReturnThis();
+    setFields = vi.fn().mockReturnThis();
+  }
+
+  const EmbedBuilderMock = vi.fn(function () {
+    return new MockEmbedBuilder();
+  });
 
   return {
     ...actual,
-    EmbedBuilder: vi.fn(() => mockEmbedBuilder),
+    EmbedBuilder: EmbedBuilderMock,
   };
 });
 
@@ -107,7 +111,7 @@ it('can report chunkloader', async () => {
 
   expect(interaction.editReply).toBeCalledWith({
     content: 'Thank you for reporting your chunkloader.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 
@@ -152,7 +156,7 @@ it('can report chunkloader for Nether', async () => {
 
   expect(interaction.editReply).toBeCalledWith({
     content: 'Thank you for reporting your chunkloader.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 
@@ -191,7 +195,7 @@ it('can report chunkloader for End', async () => {
 
   expect(interaction.editReply).toBeCalledWith({
     content: 'Thank you for reporting your chunkloader.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });
 

@@ -1,4 +1,4 @@
-import { EmbedBuilder } from 'discord.js';
+import { EmbedBuilder, MessageFlags } from 'discord.js';
 import { confirmActionDm } from '../confirmActionDm.js';
 import { Logger } from '../../../utils/index.js';
 import { applicationStartedDmEmbed, closedDmEmbed } from './embeds.js';
@@ -13,13 +13,13 @@ import {
 
 export const handleApplication = async (interaction, applicationId) => {
   const member = interaction.member;
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   const application = await getApplicationById(applicationId);
   if (!application) {
     await interaction.editReply({
       content:
         'The application was not found. Please use the autocomplete. If this issue pressists contact the staff team.',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -28,7 +28,7 @@ export const handleApplication = async (interaction, applicationId) => {
     if (member.roles.cache.has(restrictedRole.role_id)) {
       await interaction.editReply({
         content: 'You do not have the permission to execute that command.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -38,7 +38,7 @@ export const handleApplication = async (interaction, applicationId) => {
     if (!member.roles.cache.has(requiredRole.role_id)) {
       await interaction.editReply({
         content: 'You do not have the permission to execute that command.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -54,14 +54,14 @@ export const handleApplication = async (interaction, applicationId) => {
     Logger.error('cannot send direct message: ' + e);
     await interaction.editReply({
       embeds: [closedDmEmbed],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
   try {
     await interaction.editReply({
       embeds: [applicationStartedDmEmbed],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
 
     const confirmed = await confirmActionDm(

@@ -4,6 +4,7 @@ import {
   ActionRowBuilder,
   TextInputStyle,
   EmbedBuilder,
+  MessageFlags,
 } from 'discord.js';
 import {
   acceptApplicationSubmission,
@@ -41,7 +42,7 @@ const handleModal = async (interaction) => {
   if (action === 'acceptWithReason') {
     await interaction.reply({
       content: 'Accepting application',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     acceptApplicationSubmission(id, interaction.user.id, null, reason);
   }
@@ -49,7 +50,7 @@ const handleModal = async (interaction) => {
   if (action === 'denyWithReason') {
     await interaction.reply({
       content: 'Denying application',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     denyApplicationSubmission(id, interaction.user.id, null, reason);
   }
@@ -68,7 +69,7 @@ const handleButtons = async (interaction) => {
   if (action === 'accept') {
     await interaction.reply({
       content: 'Accepting application',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     acceptApplicationSubmission(id, interaction.user.id);
   }
@@ -76,7 +77,7 @@ const handleButtons = async (interaction) => {
   if (action === 'deny') {
     await interaction.reply({
       content: 'Denying application',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     denyApplicationSubmission(id, interaction.user.id);
   }
@@ -118,7 +119,7 @@ const handleButtons = async (interaction) => {
   }
 
   if (action === 'history') {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const history = await getApplicationSubmissionHistory(id);
 
@@ -200,7 +201,7 @@ const handleSelectMenu = async (interaction) => {
   if (action === 'acceptTemplate') {
     await interaction.reply({
       content: 'Accepting application',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     acceptApplicationSubmission(
       applicationSubmissionid,
@@ -212,7 +213,7 @@ const handleSelectMenu = async (interaction) => {
   if (action === 'denyTemplate') {
     await interaction.reply({
       content: 'Denying application',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     denyApplicationSubmission(
       applicationSubmissionid,

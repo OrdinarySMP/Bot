@@ -3,6 +3,7 @@ import {
   ButtonStyle,
   ActionRowBuilder,
   ComponentType,
+  MessageFlags,
 } from 'discord.js';
 
 export default class Paginate {
@@ -39,12 +40,12 @@ export default class Paginate {
       if (this.#interaction.replied || this.#interaction.deferred) {
         this.#interaction.editReply({
           content: 'No data found!',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       } else {
         this.#interaction.reply({
           content: 'No data found!',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       return this;
@@ -98,7 +99,7 @@ export default class Paginate {
         ? 'Could not load data please try again later. If this error persists, please report to the staff team.'
         : '',
       embeds: embed ? [embed] : [],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
       components: embed ? [this.#actionRow] : [],
     };
 

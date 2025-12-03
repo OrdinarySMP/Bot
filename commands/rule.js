@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import Logger from '../utils/logger.js';
 import { apiFetch } from '../utils/apiFetch.js';
 
@@ -48,7 +48,7 @@ export const execute = async (interaction) => {
       await interaction.reply({
         content:
           'The rule was not found please try again later. If this error persists, please report to the staff team.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -65,7 +65,7 @@ export const execute = async (interaction) => {
     Logger.error(e);
     await interaction.reply({
       content: `An error occurred while retrieving the rule entry. Please try again later. If this error persists, please report to the staff team.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 };

@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest';
 import { execute } from '../../commands/ip.js';
 import fetch from 'node-fetch';
+import { MessageFlags } from 'discord.js';
 
 const interaction = {
   reply: vi.fn(),
@@ -16,6 +17,6 @@ it('can retrive ip', async () => {
 
   expect(interaction.reply).toBeCalledWith({
     content: 'Current ip: `127.0.0.1`',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 });

@@ -3,6 +3,7 @@ import {
   PermissionFlagsBits,
   ChannelType,
   PermissionsBitField,
+  MessageFlags,
 } from 'discord.js';
 import { apiFetch } from '../../utils/apiFetch.js';
 
@@ -26,7 +27,7 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
   await interaction.deferReply({
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 
   const responseConfig = await apiFetch('/ticket/config', {
@@ -40,7 +41,7 @@ export const execute = async (interaction) => {
   if (ticketConfig.data?.id) {
     await interaction.editReply({
       content: 'The setup is completed. Please use the helper panel.',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -91,7 +92,7 @@ export const execute = async (interaction) => {
     await interaction.editReply({
       content:
         'An error occurred while setting up the ticket system. Please try again later. If this error persists, please report to the staff team.',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     category.delete();
     transcriptChannel.delete();
@@ -101,6 +102,6 @@ export const execute = async (interaction) => {
 
   await interaction.editReply({
     content: 'tickets setup completed.',
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 };
