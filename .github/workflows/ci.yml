@@ -18,9 +18,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: v22.2.0
+          node-version: v22.14.0
       - name: Install commitlint
-        run: yarn add commitlint@latest conventional-changelog-conventionalcommits @commitlint/config-conventional
+        run: npm i commitlint@latest conventional-changelog-conventionalcommits @commitlint/config-conventional
       - name: Validate current commit (last commit) with commitlint
         if: github.event_name == 'push'
         run: npx commitlint --last --verbose
@@ -37,7 +37,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: v22.2.0
+          node-version: v22.14.0
       - name: Install dependencies
         run: npm install --frozen-lockfile
       - name: Run linter + prettier
@@ -56,7 +56,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: v22.2.0
+          node-version: v22.14.0
       - name: Install dependencies
         run: npm install --frozen-lockfile
       - name: Run tests
