@@ -15,6 +15,8 @@ import { loadMessage } from '../utils/loadMessage.js';
 import Paginate from '../commands/utils/paginate.js';
 import dayjs from 'dayjs';
 import { handleApplication } from '../commands/utils/apply/index.js';
+import { replyError } from '../utils/replyError.js';
+import Logger from '../utils/logger.js';
 
 export const applicationHandler = async (interaction) => {
   if (interaction.isModalSubmit()) {
@@ -40,19 +42,35 @@ const handleModal = async (interaction) => {
   const reason = interaction.fields.getTextInputValue('reason');
 
   if (action === 'acceptWithReason') {
-    await interaction.reply({
-      content: 'Accepting application',
-      flags: MessageFlags.Ephemeral,
-    });
-    acceptApplicationSubmission(id, interaction.user.id, null, reason);
-  }
-
-  if (action === 'denyWithReason') {
-    await interaction.reply({
-      content: 'Denying application',
-      flags: MessageFlags.Ephemeral,
-    });
-    denyApplicationSubmission(id, interaction.user.id, null, reason);
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    try {
+      await acceptApplicationSubmission(id, interaction.user.id, null, reason);
+      await interaction.followUp({
+        content: 'Application accepted',
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (e) {
+      handleError(
+        interaction,
+        'Could not accept application. Please report to the staff team',
+        `An error occoured while accepting submission ${id}: ${e}`
+      );
+    }
+  } else if (action === 'denyWithReason') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    try {
+      await denyApplicationSubmission(id, interaction.user.id, null, reason);
+      await interaction.followUp({
+        content: 'Application denied',
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (e) {
+      handleError(
+        interaction,
+        'Could not deny application. Please report to the staff team',
+        `An error occoured while denying submission ${id}: ${e}`
+      );
+    }
   }
 };
 
@@ -67,22 +85,36 @@ const handleButtons = async (interaction) => {
   const id = match[2]; // id
 
   if (action === 'accept') {
-    await interaction.reply({
-      content: 'Accepting application',
-      flags: MessageFlags.Ephemeral,
-    });
-    acceptApplicationSubmission(id, interaction.user.id);
-  }
-
-  if (action === 'deny') {
-    await interaction.reply({
-      content: 'Denying application',
-      flags: MessageFlags.Ephemeral,
-    });
-    denyApplicationSubmission(id, interaction.user.id);
-  }
-
-  if (action === 'acceptWithReason') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    try {
+      await acceptApplicationSubmission(id, interaction.user.id);
+      await interaction.followUp({
+        content: 'Application accepted',
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (e) {
+      handleError(
+        interaction,
+        'Could not accept application. Please report to the staff team',
+        `An error occoured while accepting submission ${id}: ${e}`
+      );
+    }
+  } else if (action === 'deny') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    try {
+      await denyApplicationSubmission(id, interaction.user.id);
+      await interaction.followUp({
+        content: 'Application denied',
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (e) {
+      handleError(
+        interaction,
+        'Could not deny application. Please report to the staff team',
+        `An error occoured while denying submission ${id}: ${e}`
+      );
+    }
+  } else if (action === 'acceptWithReason') {
     const modal = new ModalBuilder()
       .setCustomId(`applicationSubmission-acceptWithReason-${id}`)
       .setTitle('Accept application with reason');
@@ -96,9 +128,7 @@ const handleButtons = async (interaction) => {
 
     modal.addComponents(answerActionRow);
     await interaction.showModal(modal);
-  }
-
-  if (action === 'denyWithReason') {
+  } else if (action === 'denyWithReason') {
     const modal = new ModalBuilder()
       .setCustomId(`applicationSubmission-denyWithReason-${id}`)
       .setTitle('Deny application with reason');
@@ -112,13 +142,9 @@ const handleButtons = async (interaction) => {
 
     modal.addComponents(answerActionRow);
     await interaction.showModal(modal);
-  }
-
-  if (action === 'start') {
+  } else if (action === 'start') {
     handleApplication(interaction, id);
-  }
-
-  if (action === 'history') {
+  } else if (action === 'history') {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const history = await getApplicationSubmissionHistory(id);
@@ -199,26 +225,53 @@ const handleSelectMenu = async (interaction) => {
   const templateId = interaction.values[0];
 
   if (action === 'acceptTemplate') {
-    await interaction.reply({
-      content: 'Accepting application',
-      flags: MessageFlags.Ephemeral,
-    });
-    acceptApplicationSubmission(
-      applicationSubmissionid,
-      interaction.user.id,
-      templateId
-    );
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    try {
+      await acceptApplicationSubmission(
+        applicationSubmissionid,
+        interaction.user.id,
+        templateId
+      );
+      await interaction.followUp({
+        content: 'Application accepted',
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (e) {
+      handleError(
+        interaction,
+        'Could not accept application. Please report to the staff team',
+        `An error occoured while accepting submission ${applicationSubmissionid}: ${e}`
+      );
+    }
+  } else if (action === 'denyTemplate') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    try {
+      await denyApplicationSubmission(
+        applicationSubmissionid,
+        interaction.user.id,
+        templateId
+      );
+      await interaction.followUp({
+        content: 'Application denied',
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (e) {
+      handleError(
+        interaction,
+        'Could not deny application. Please report to the staff team',
+        `An error occoured while denying submission ${applicationSubmissionid}: ${e}`
+      );
+    }
   }
+};
 
-  if (action === 'denyTemplate') {
-    await interaction.reply({
-      content: 'Denying application',
-      flags: MessageFlags.Ephemeral,
-    });
-    denyApplicationSubmission(
-      applicationSubmissionid,
-      interaction.user.id,
-      templateId
+const handleError = async (interaction, errorMessage, logMessage) => {
+  try {
+    replyError(interaction, errorMessage);
+  } catch (e) {
+    Logger.error(
+      'An error occourred sending the error message to the user: ' + e
     );
   }
+  Logger.error(logMessage);
 };

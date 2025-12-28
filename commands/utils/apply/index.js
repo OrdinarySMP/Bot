@@ -51,7 +51,7 @@ export const handleApplication = async (interaction, applicationId) => {
       'Thank you for starting an application process'
     );
   } catch (e) {
-    Logger.error('cannot send direct message: ' + e);
+    Logger.error('Cannot send direct message: ' + e);
     await interaction.editReply({
       embeds: [closedDmEmbed],
       flags: MessageFlags.Ephemeral,
@@ -194,9 +194,15 @@ const handleError = async (
     .setTitle(`Error`)
     .setDescription(errorMessage)
     .setColor('#ce361e');
-  await channel.send({
-    embeds: [embed],
-  });
+  try {
+    await channel.send({
+      embeds: [embed],
+    });
+  } catch (e) {
+    Logger.error(
+      'An error occourred sending the error message to the user: ' + e
+    );
+  }
   if (logError) {
     Logger.error(logMessage);
   }
