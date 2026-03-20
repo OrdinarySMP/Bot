@@ -1,11 +1,5 @@
 import 'dotenv/config';
-import {
-  Client,
-  Events,
-  GatewayIntentBits,
-  Partials,
-  ActivityType,
-} from 'discord.js';
+import { Client, Events, GatewayIntentBits, Partials } from 'discord.js';
 import {
   sendLeaveMessage,
   addRole,
@@ -62,9 +56,7 @@ client.on(Events.MessageDelete, async (message) => {
 
 client.once(Events.ClientReady, (readyClient) => {
   Logger.debug(`Ready! Logged in as ${readyClient.user.tag}`);
-  readyClient.user.setActivity('on play.ordinary-smp.com', {
-    type: ActivityType.Playing,
-  });
+  readyClient.user.setActivity('play.ordinary-smp.com');
 });
 
 client.on(Events.GuildMemberRemove, (member) => {
