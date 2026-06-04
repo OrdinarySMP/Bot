@@ -52,9 +52,13 @@ export const handleReactionRole = async (reaction, user, type) => {
   }
 
   if (embed) {
-    user.send({
-      embeds: [embed],
-    });
+    try {
+      user.send({
+        embeds: [embed],
+      });
+    } catch (error) {
+      Logger.error(`Could not  message user for reaction role: ${error}`);
+    }
   }
 };
 
