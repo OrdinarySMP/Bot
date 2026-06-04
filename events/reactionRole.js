@@ -53,7 +53,7 @@ export const handleReactionRole = async (reaction, user, type) => {
 
   if (embed) {
     try {
-      user.send({
+      await user.send({
         embeds: [embed],
       });
     } catch (error) {
